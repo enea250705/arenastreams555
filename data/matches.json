@@ -1,0 +1,17 @@
+[
+  {
+    "id": "buffalo-test-123",
+    "teamA": "Buffalo Bills",
+    "teamB": "Miami Dolphins",
+    "sport": "american-football",
+    "competition": "NFL",
+    "date": "2025-01-20T20:00:00",
+    "slug": "buffalo-bills-vs-miami-dolphins-live-2025-01-20",
+    "status": "upcoming",
+    "embedUrls": [],
+    "teamABadge": "",
+    "teamBBadge": "",
+    "createdAt": "2025-09-19T01:36:22.044Z",
+    "source": "admin"
+  }
+]

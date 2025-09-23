@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Server - ArenaStreams Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ffcc00',
+                        dark: '#1a1a1a',
+                        darker: '#0f0f0f'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f0f0f; color: #fff; }
+    </style>
+    <script>
+      function copySlug() {
+        var input = document.getElementById('slug');
+        input.select();
+        input.setSelectionRange(0, 99999);
+        try { document.execCommand('copy'); } catch (e) {}
+      }
+    </script>
+    </head>
+<body class="bg-darker text-white min-h-screen">
+    <header class="bg-dark border-b border-gray-800">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-primary">🏟️ ArenaStreams Admin</h1>
+                <nav class="flex space-x-6">
+                    <a href="/admin" class="text-gray-400 hover:text-primary transition-colors">Dashboard</a>
+                    <a href="/admin/add-match" class="text-gray-400 hover:text-primary transition-colors">Add Match</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-3xl mx-auto bg-dark border border-gray-800 rounded-lg p-8">
+            <h2 class="text-3xl font-bold mb-4">Add Extra Servers for a Fetched Match</h2>
+            <p class="text-gray-400 mb-6">Paste the match slug and add one or more embed URLs (one per line). These servers will be used if the fetched match has no working streams.</p>
+
+            {{#if error}}
+            <div class="bg-red-600 border border-red-500 rounded-lg p-4 mb-6">
+                <p class="text-white">{{error}}</p>
+            </div>
+            {{/if}}
+
+            <form method="POST" action="/admin/add-server" class="space-y-6">
+                <div>
+                    <label for="slug" class="block text-sm font-semibold mb-2">Match Slug</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="slug" name="slug" value="{{slug}}" placeholder="team-a-vs-team-b-live-2025-09-17" class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none" required>
+                        <button type="button" onclick="copySlug()" class="bg-gray-700 text-white px-3 rounded-lg">Copy</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="embedUrls" class="block text-sm font-semibold mb-2">Embed URLs (one per line)</label>
+                    <textarea id="embedUrls" name="embedUrls" rows="6" placeholder="https://provider.com/embed/123
+https://another.com/embed/xyz" class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none"></textarea>
+                    <p class="text-gray-400 text-sm mt-2">You can paste YouTube/Twitch/Vimeo or any iframe-friendly embed URL.</p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="bg-primary text-dark font-bold px-6 py-3 rounded-lg hover:bg-yellow-400 transition-colors">Save Servers</button>
+                    <a href="/admin" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="bg-dark border-t border-gray-800 mt-16">
+        <div class="container mx-auto px-4 py-8 text-center text-gray-400 text-sm">
+            <p>&copy; 2025 ArenaStreams Admin Panel</p>
+        </div>
+    </footer>
+</body>
+</html>
+
+

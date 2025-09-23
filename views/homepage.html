@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Cache-busting: {{timestamp}} -->
+    <!-- Provider script - controlled by advanced-ads.js -->
+    <script id="adblock-provider-script" data-src="https://fpyf8.com/88/tag.min.js" data-zone="171670" data-cfasync="false"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TM2J2414Z9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-TM2J2414Z9', {
+            page_title: '{{seo.title}}',
+            page_location: '{{seo.canonical}}'
+        });
+    </script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{seo.title}}</title>
+    <meta name="description" content="{{seo.description}}">
+    <meta name="keywords" content="{{seo.keywords}}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{seo.canonical}}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{seo.ogTitle}}">
+    <meta property="og:description" content="{{seo.ogDescription}}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{seo.canonical}}">
+    <meta property="og:image" content="{{seo.ogImage}}">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="{{seo.twitterCard}}">
+    <meta name="twitter:title" content="{{seo.twitterTitle}}">
+    <meta name="twitter:description" content="{{seo.twitterDescription}}">
+    <meta name="twitter:image" content="{{seo.twitterImage}}">
+    
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ffcc00',
+                        dark: '#1a1a1a',
+                        darker: '#0f0f0f'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Show the adblock banner only when adblock is detected (class added by advanced-ads.js) */
+        #adblock-banner { display: none; }
+        body.adblock-on #adblock-banner { display: block; }
+    </style>
+    
+    <!-- Advanced Ad System -->
+    <script src="/js/advanced-ads.js"></script>
+    
+    
+    
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "ArenaStreams",
+        "url": "https://arenastreams.com",
+        "description": "Live sports streaming platform for football, basketball, tennis, UFC, rugby, baseball, American football and hockey",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://arenastreams.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+</head>
+<body class="bg-darker text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-dark border-b border-gray-800">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-primary">🏟️ ArenaStreams</h1>
+                    <span class="text-gray-400 text-sm">Live Sports Streaming</span>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="/" class="text-white hover:text-primary transition-colors">Home</a>
+                    <a href="/football" class="text-gray-400 hover:text-primary transition-colors">⚽ Football</a>
+                    <a href="/basketball" class="text-gray-400 hover:text-primary transition-colors">🏀 Basketball</a>
+                    <a href="/tennis" class="text-gray-400 hover:text-primary transition-colors">🎾 Tennis</a>
+                    <a href="/ufc" class="text-gray-400 hover:text-primary transition-colors">🥊 UFC</a>
+                    <a href="/rugby" class="text-gray-400 hover:text-primary transition-colors">🏉 Rugby</a>
+                    <a href="/baseball" class="text-gray-400 hover:text-primary transition-colors">⚾ Baseball</a>
+                    <a href="/american-football" class="text-gray-400 hover:text-primary transition-colors">🏈 American Football</a>
+                    <a href="/cricket" class="text-gray-400 hover:text-primary transition-colors">🏏 Cricket</a>
+                    <a href="/motor-sports" class="text-gray-400 hover:text-primary transition-colors">🏁 Motor Sports</a>
+                <a href="/hockey" class="text-gray-400 hover:text-primary transition-colors">🏒 Hockey</a>
+                    <a href="/hockey" class="text-gray-400 hover:text-primary transition-colors">🏒 Hockey</a>
+                </nav>
+                <div class="flex items-center space-x-3">
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-btn" class="text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- AdBlock Banner (only visible when AdBlock is ON) -->
+    <div id="adblock-banner" class="bg-dark border-b border-yellow-500">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                <div class="text-sm md:text-base text-gray-200 leading-snug">
+                    <span class="mr-2">❤️</span>
+                    We keep streams alive with ads.
+                    <span class="hidden md:inline">Turn off AdBlock for ArenaStreams and unlock the cleaner version → just 5 ads per match.</span>
+                    <span class="md:hidden block mt-1">Turn off AdBlock for ArenaStreams and unlock the cleaner version → just 5 ads per match.</span>
+                </div>
+                <a href="#" id="whitelist-btn" class="bg-primary text-dark font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors text-sm md:text-base">
+                    Whitelist Us for Fewer Ads
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Whitelist Modal -->
+    <div id="whitelist-modal" class="fixed inset-0 bg-black/70 hidden z-50">
+        <div class="absolute inset-0 flex items-center justify-center px-4">
+            <div class="bg-dark border border-gray-800 rounded-xl max-w-2xl w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white">Whitelist ArenaStreams</h3>
+                    <button id="whitelist-close" class="text-gray-400 hover:text-white">✕</button>
+                </div>
+                <p class="text-gray-300 text-sm mb-4">
+                    Turn off your ad blocker on this site to unlock the cleaner version (just 5 ads per match). Here are quick steps for popular blockers:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
+                    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">uBlock Origin</h4>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Click the uBlock Origin icon.</li>
+                            <li>Click the large power button to disable on this site.</li>
+                            <li>Refresh the page.</li>
+                        </ol>
+                    </div>
+                    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">Adblock / Adblock Plus</h4>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Click the Adblock(Plus) icon.</li>
+                            <li>Select “Don’t run on pages on this site” or “Pause on this site”.</li>
+                            <li>Refresh the page.</li>
+                        </ol>
+                    </div>
+                    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">AdGuard</h4>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Click the AdGuard icon.</li>
+                            <li>Toggle off on this site (whitelist).</li>
+                            <li>Refresh the page.</li>
+                        </ol>
+                    </div>
+                    <div class="bg-gray-900 border border-gray-800 rounded-lg p-4">
+                        <h4 class="font-semibold mb-2">Safari iOS / iPadOS</h4>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Tap “aA” in the address bar.</li>
+                            <li>Turn off content blockers.</li>
+                            <li>Reload the page.</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3 mt-6">
+                    <button id="whitelist-copy" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm">Copy domain</button>
+                    <button id="whitelist-recheck" class="bg-primary text-dark font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 text-sm">I’ve whitelisted – Recheck</button>
+                </div>
+                <p id="whitelist-feedback" class="text-green-500 text-sm mt-3 hidden">Copied!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden bg-dark border-b border-gray-800 hidden">
+        <div class="container mx-auto px-4 py-4">
+            <nav class="flex flex-col space-y-4">
+                <a href="/" class="text-white hover:text-primary transition-colors">Home</a>
+                <a href="/football" class="text-gray-400 hover:text-primary transition-colors">⚽ Football</a>
+                <a href="/basketball" class="text-gray-400 hover:text-primary transition-colors">🏀 Basketball</a>
+                <a href="/tennis" class="text-gray-400 hover:text-primary transition-colors">🎾 Tennis</a>
+                <a href="/ufc" class="text-gray-400 hover:text-primary transition-colors">🥊 UFC</a>
+                <a href="/rugby" class="text-gray-400 hover:text-primary transition-colors">🏉 Rugby</a>
+                <a href="/baseball" class="text-gray-400 hover:text-primary transition-colors">⚾ Baseball</a>
+                <a href="/american-football" class="text-gray-400 hover:text-primary transition-colors">🏈 American Football</a>
+                <a href="/cricket" class="text-gray-400 hover:text-primary transition-colors">🏏 Cricket</a>
+                <a href="/motor-sports" class="text-gray-400 hover:text-primary transition-colors">🏁 Motor Sports</a>
+                <a href="/hockey" class="text-gray-400 hover:text-primary transition-colors">🏒 Hockey</a>
+            </nav>
+            
+        </div>
+    </div>
+
+    <!-- NFL Sunday Notice Banner -->
+    <div class="bg-gradient-to-r from-red-600 to-red-700 border-b border-red-500">
+        <div class="container mx-auto px-4 py-3">
+            <!-- Mobile Layout -->
+            <div class="md:hidden text-center">
+                <div class="flex items-center justify-center space-x-2 mb-2">
+                    <span class="text-xl">🏈</span>
+                    <span class="text-white font-bold text-base">NFL Sunday Notice</span>
+                </div>
+                <p class="text-white text-sm font-semibold mb-1">
+                    NFL Sunday had delays due to high traffic.
+                </p>
+                <p class="text-red-200 text-xs">
+                    We're creating mirrors to fix this.
+                </p>
+            </div>
+            
+            <!-- Desktop Layout -->
+            <div class="hidden md:flex items-center justify-center space-x-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">🏈</span>
+                    <span class="text-white font-bold text-lg">NFL Sunday Notice</span>
+                </div>
+                <div class="w-px h-6 bg-red-400"></div>
+                <div class="text-left">
+                    <p class="text-white text-base">
+                        <span class="font-semibold">NFL Sunday had delays due to high traffic.</span>
+                        <span> We're sorry for the inconvenience and are working to resolve this by creating additional mirrors.</span>
+                    </p>
+                    <p class="text-red-200 text-sm mt-1">
+                        Thank you for your patience as we improve our infrastructure.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <section class="text-center mb-12">
+            <h2 class="text-4xl md:text-6xl font-bold mb-4">
+                Live Sports <span class="text-primary">Streaming</span>
+            </h2>
+            <p class="text-xl text-gray-300 mb-6 max-w-3xl mx-auto">
+                Watch live football, basketball, tennis, UFC, rugby, baseball, American football and hockey matches in HD quality. 
+                Free streaming with no registration required.
+            </p>
+            
+            <!-- Today's Date Display -->
+            <div class="bg-dark border border-gray-800 rounded-lg p-4 mb-6 max-w-md mx-auto">
+                <p class="text-lg font-semibold text-primary" id="current-date">Loading today's date...</p>
+                <p class="text-sm text-gray-400">Choose your sport below to start watching</p>
+            </div>
+            
+            <!-- Welcome Message -->
+            <div class="bg-primary text-dark px-6 py-3 rounded-lg inline-block font-bold text-lg mb-6">
+                🎯 Select Your Sport Below
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-400">
+                <span class="flex items-center">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    HD Quality
+                </span>
+                <span class="flex items-center">
+                    <span class="w-2 h-2 bg-primary rounded-full mr-2"></span>
+                    No Registration
+                </span>
+                <span class="flex items-center">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                    Free Streaming
+                </span>
+            </div>
+        </section>
+
+        <!-- Global Search Section -->
+        <section class="mb-12">
+            <div class="max-w-4xl mx-auto">
+                <h3 class="text-2xl font-bold text-center mb-6">Search Teams & Matches</h3>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="global-search-input" 
+                        class="w-full px-4 py-3 pl-12 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-primary focus:outline-none transition-colors text-lg"
+                        placeholder="Search for teams like 'Liverpool', 'Barcelona', 'Real Madrid' or competitions..."
+                        autocomplete="off"
+                    >
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <button 
+                        id="global-search-clear" 
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-white transition-colors"
+                        style="display: none;"
+                    >
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="global-search-results" class="mt-4 text-sm text-gray-400" style="display: none;"></div>
+                <div id="global-search-results-grid" class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style="display: none;"></div>
+                <div class="text-center mt-4">
+                    <p class="text-gray-500 text-sm">Search across all sports and competitions</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real Banner Ad -->
+        <section class="mb-12">
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 max-w-4xl mx-auto">
+                <p class="text-gray-400 text-sm mb-2 text-center">Advertisement</p>
+                <div class="text-center">
+                    <!-- Real Banner Ad -->
+                    <iframe src="https://otieu.com/4/9889886" 
+                            width="728" height="90" 
+                            frameborder="0" 
+                            scrolling="no"
+                            style="max-width: 100%; height: auto;">
+                    </iframe>
+                    <p class="text-xs mt-2 text-gray-500">Advertisement</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Share Platform Section -->
+        <section class="mb-12">
+            <div class="max-w-4xl mx-auto">
+                <!-- Desktop Share Section -->
+                <div class="hidden md:flex items-center justify-center space-x-6 bg-gray-800/50 px-6 py-4 rounded-lg border border-gray-700">
+                    <p class="text-sm text-gray-300">If you like our stream platform, share it with your friends.</p>
+                    <div class="flex items-center space-x-3">
+                        <button id="copy-link-btn" class="flex items-center space-x-2 bg-primary text-dark font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors group">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-sm font-medium">Copy arenastreams.com</span>
+                        </button>
+                        <a href="https://x.com/arenastreams" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg border border-gray-600 transition-colors group">
+                            <svg class="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            <span class="text-gray-300 group-hover:text-blue-400 transition-colors text-sm font-medium">Follow on X</span>
+                        </a>
+                        <a href="https://t.me/arenastreams" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg border border-gray-600 transition-colors group">
+                            <svg class="w-4 h-4 text-gray-300 group-hover:text-blue-500 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                            </svg>
+                            <span class="text-gray-300 group-hover:text-blue-500 transition-colors text-sm font-medium">Join Telegram</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Mobile Share Section -->
+                <div class="md:hidden bg-gray-800/50 px-4 py-4 rounded-lg border border-gray-700">
+                    <p class="text-sm text-gray-300 text-center mb-4">If you like our stream platform, share it with your friends.</p>
+                    <div class="flex flex-col space-y-3">
+                        <button id="copy-link-btn-mobile" class="w-full flex items-center justify-center space-x-2 bg-primary text-dark font-bold px-4 py-3 rounded-lg hover:bg-yellow-400 transition-colors group">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            <span class="text-sm font-medium">Copy arenastreams.com</span>
+                        </button>
+                        <a href="https://x.com/arenastreams" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-lg border border-gray-600 transition-colors group">
+                            <svg class="w-4 h-4 text-gray-300 group-hover:text-blue-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            <span class="text-gray-300 group-hover:text-blue-400 transition-colors text-sm font-medium">Follow us on X</span>
+                        </a>
+                        <a href="https://t.me/arenastreams" target="_blank" rel="noopener noreferrer" 
+                           class="w-full flex items-center justify-center space-x-2 bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-lg border border-gray-600 transition-colors group">
+                            <svg class="w-4 h-4 text-gray-300 group-hover:text-blue-500 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                            </svg>
+                            <span class="text-gray-300 group-hover:text-blue-500 transition-colors text-sm font-medium">Join our Telegram</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ballon d'Or 2025 Featured Stream -->
+        <section class="mb-12">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-gradient-to-r from-yellow-600 to-yellow-700 border border-yellow-500 rounded-xl p-6 mb-8">
+                    <div class="text-center mb-6">
+                        <div class="flex items-center justify-center space-x-3 mb-4">
+                            <span class="text-4xl">🏆</span>
+                            <h3 class="text-3xl font-bold text-white">Ballon d'Or 2025</h3>
+                            <span class="text-4xl">⚽</span>
+                        </div>
+                        <p class="text-yellow-100 text-lg mb-4">Watch the prestigious Ballon d'Or ceremony live</p>
+                        <div class="flex items-center justify-center space-x-2 mb-4">
+                            <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                            <span class="text-yellow-100 font-semibold">LIVE NOW</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Stream Player -->
+                    <div class="bg-black rounded-lg overflow-hidden">
+                        <div class="aspect-video">
+                            <iframe 
+                                src="https://embedsports.top/embed/alpha/ballon-d-or-2025/1" 
+                                frameborder="0" 
+                                allowfullscreen
+                                class="w-full h-full"
+                                style="min-height: 400px;">
+                            </iframe>
+                        </div>
+                    </div>
+                    
+                    <!-- Stream Info -->
+                    <div class="mt-4 text-center">
+                        <p class="text-yellow-100 text-sm mb-2">🎯 Ballon d'Or 2025 Ceremony - Live Stream</p>
+                        <div class="flex items-center justify-center space-x-4 text-xs text-yellow-200">
+                            <span class="flex items-center space-x-1">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span>HD Quality</span>
+                            </span>
+                            <span class="flex items-center space-x-1">
+                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                <span>No Registration</span>
+                            </span>
+                            <span class="flex items-center space-x-1">
+                                <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+                                <span>Free Stream</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Choose Your Sport -->
+        <section class="mb-12">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold mb-4">
+                    Choose Your <span class="text-primary">Sport</span>
+                </h3>
+                <p class="text-gray-400 text-lg">Click on any sport below to view live matches and streams</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-6">
+                <a href="/football" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">⚽</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Football</h4>
+                    <p class="text-sm text-gray-400 mt-2">Premier League, Champions League</p>
+                </a>
+                <a href="/basketball" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🏀</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Basketball</h4>
+                    <p class="text-sm text-gray-400 mt-2">NBA, EuroLeague</p>
+                </a>
+                <a href="/tennis" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🎾</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Tennis</h4>
+                    <p class="text-sm text-gray-400 mt-2">Grand Slams, ATP, WTA</p>
+                </a>
+                <a href="/ufc" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🥊</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">UFC</h4>
+                    <p class="text-sm text-gray-400 mt-2">Fights, Championships</p>
+                </a>
+                <a href="/rugby" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🏉</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Rugby</h4>
+                    <p class="text-sm text-gray-400 mt-2">Six Nations, World Cup</p>
+                </a>
+                <a href="/baseball" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">⚾</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Baseball</h4>
+                    <p class="text-sm text-gray-400 mt-2">MLB, World Series</p>
+                </a>
+                <a href="/american-football" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🏈</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">American Football</h4>
+                    <p class="text-sm text-gray-400 mt-2">NFL, Super Bowl</p>
+                </a>
+                <a href="/cricket" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🏏</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Cricket</h4>
+                    <p class="text-sm text-gray-400 mt-2">IPL, World Cup</p>
+                </a>
+                <a href="/motor-sports" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🏁</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Motor Sports</h4>
+                    <p class="text-sm text-gray-400 mt-2">F1, MotoGP, NASCAR</p>
+                </a>
+                <a href="/hockey" class="bg-dark border-2 border-gray-800 rounded-xl p-8 text-center hover:border-primary hover:bg-gray-800 transition-all duration-300 group transform hover:scale-105">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🏒</div>
+                    <h4 class="font-bold text-lg group-hover:text-primary transition-colors">Hockey</h4>
+                    <p class="text-sm text-gray-400 mt-2">NHL, Stanley Cup</p>
+                </a>
+            </div>
+        <!-- Live Matches Dropdown -->
+        <section class="mb-12">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold mb-4">
+                    Live Matches <span class="text-primary">Now</span>
+                </h3>
+                <p class="text-gray-400 text-lg">See what's currently streaming across all sports</p>
+            </div>
+            
+            <!-- Sports Dropdown -->
+            <div class="max-w-4xl mx-auto">
+                <div class="relative">
+                    <select id="sport-dropdown" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-primary focus:outline-none transition-colors text-lg appearance-none cursor-pointer">
+                        <option value="">Select a sport to see live matches...</option>
+                        <option value="football">⚽ Football</option>
+                        <option value="basketball">🏀 Basketball</option>
+                        <option value="tennis">🎾 Tennis</option>
+                        <option value="ufc">🥊 UFC</option>
+                        <option value="rugby">🏉 Rugby</option>
+                        <option value="baseball">⚾ Baseball</option>
+                        <option value="american-football">🏈 American Football</option>
+                        <option value="cricket">🏏 Cricket</option>
+                        <option value="motor-sports">🏁 Motor Sports</option>
+                        <option value="hockey">🏒 Hockey</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="live-matches-loading" class="mt-6 text-center hidden">
+                    <div class="inline-flex items-center space-x-2 text-gray-400">
+                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                        <span>Loading live matches...</span>
+                    </div>
+                </div>
+                
+                <!-- Live Matches Results -->
+                <div id="live-matches-results" class="mt-6 hidden">
+                    <div class="bg-dark border border-gray-800 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-xl font-bold text-primary" id="selected-sport-title">Live Matches</h4>
+                            <div class="flex items-center space-x-2">
+                                <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                <span class="text-sm text-gray-400">Live</span>
+                            </div>
+                        </div>
+                        <div id="live-matches-list" class="space-y-3">
+                            <!-- Live matches will be populated here -->
+                        </div>
+                        <div id="no-live-matches" class="text-center py-8 hidden">
+                            <div class="text-4xl text-gray-600 mb-4">📺</div>
+                            <p class="text-gray-400 mb-2">No live matches found</p>
+                            <p class="text-gray-500 text-sm">Check back later or try another sport</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark border-t border-gray-800 mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold text-primary mb-4">🏟️ ArenaStreams</h4>
+                    <p class="text-gray-400 text-sm">
+                        Your ultimate destination for live sports streaming. Watch football, basketball, tennis, UFC, rugby, baseball, American football and hockey in HD quality.
+                    </p>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Sports</h5>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="/football" class="hover:text-primary transition-colors">Football</a></li>
+                        <li><a href="/basketball" class="hover:text-primary transition-colors">Basketball</a></li>
+                        <li><a href="/tennis" class="hover:text-primary transition-colors">Tennis</a></li>
+                        <li><a href="/ufc" class="hover:text-primary transition-colors">UFC</a></li>
+                        <li><a href="/rugby" class="hover:text-primary transition-colors">Rugby</a></li>
+                        <li><a href="/baseball" class="hover:text-primary transition-colors">Baseball</a></li>
+                        <li><a href="/american-football" class="hover:text-primary transition-colors">American Football</a></li>
+                        <li><a href="/cricket" class="hover:text-primary transition-colors">Cricket</a></li>
+                        <li><a href="/motor-sports" class="hover:text-primary transition-colors">Motor Sports</a></li>
+                        <li><a href="/hockey" class="hover:text-primary transition-colors">Hockey</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Quick Links</h5>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="/football" class="hover:text-primary transition-colors">Football</a></li>
+                        <li><a href="/basketball" class="hover:text-primary transition-colors">Basketball</a></li>
+                        <li><a href="/tennis" class="hover:text-primary transition-colors">Tennis</a></li>
+                        <li><a href="/ufc" class="hover:text-primary transition-colors">UFC</a></li>
+                        <li><a href="/rugby" class="hover:text-primary transition-colors">Rugby</a></li>
+                        <li><a href="/baseball" class="hover:text-primary transition-colors">Baseball</a></li>
+                        <li><a href="/american-football" class="hover:text-primary transition-colors">American Football</a></li>
+                        <li><a href="/cricket" class="hover:text-primary transition-colors">Cricket</a></li>
+                        <li><a href="/motor-sports" class="hover:text-primary transition-colors">Motor Sports</a></li>
+                        <li><a href="/hockey" class="hover:text-primary transition-colors">Hockey</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold mb-4">Legal</h5>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="/privacy" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+                        <li><a href="/terms" class="hover:text-primary transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 ArenaStreams. All rights reserved. | Live sports streaming platform</p>
+                
+                <!-- X (Twitter) Follow Section -->
+                <div class="mt-6 mb-6">
+                    <div class="flex items-center justify-center space-x-3">
+                        <a href="https://x.com/arenastreams" target="_blank" rel="noopener noreferrer" 
+                           class="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg border border-gray-700 transition-colors group">
+                            <svg class="w-5 h-5 text-white group-hover:text-blue-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                            <span class="text-white group-hover:text-blue-400 transition-colors font-medium">Follow on X</span>
+                        </a>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Follow us on X for updates and announcements. If the site goes down, we'll post updates there!
+                    </p>
+                </div>
+                
+                <!-- DMCA Notice -->
+                <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+                    <h6 class="text-primary font-semibold mb-3">DMCA Copyright Notice</h6>
+                    <div class="text-xs text-gray-300 leading-relaxed">
+                        <p class="mb-2">
+                            <strong>Digital Millennium Copyright Act (DMCA) Compliance:</strong>
+                        </p>
+                        <p class="mb-2">
+                            ArenaStreams respects the intellectual property rights of others and expects our users to do the same. 
+                            We do not host, store, or transmit any copyrighted content. All streams are provided by third-party sources 
+                            and are not under our control.
+                        </p>
+                        <p class="mb-2">
+                            <strong>If you believe your copyrighted work has been used in a way that constitutes copyright infringement, 
+                            please provide the following information:</strong>
+                        </p>
+                        <ul class="text-left list-disc list-inside mb-2 space-y-1">
+                            <li>Identification of the copyrighted work claimed to have been infringed</li>
+                            <li>Identification of the material that is claimed to be infringing</li>
+                            <li>Your contact information (name, address, phone number, email)</li>
+                            <li>A statement that you have a good faith belief that use of the material is not authorized</li>
+                            <li>A statement that the information is accurate and you are authorized to act on behalf of the copyright owner</li>
+                        </ul>
+                        <p class="mb-2">
+                            <strong>DMCA Agent Contact:</strong><br>
+                            Email: dmca@arenastreams.com<br>
+                            Subject: DMCA Takedown Request
+                        </p>
+                        <p class="text-xs text-gray-400">
+                            We will respond to valid DMCA notices within 24-48 hours and remove infringing content promptly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Display today's date
+        function displayTodaysDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            const formattedDate = now.toLocaleDateString('en-US', options);
+            document.getElementById('current-date').textContent = formattedDate;
+        }
+
+        // Add click tracking for sport selection
+        function trackSportSelection(sport) {
+            console.log(`🎯 User selected sport: ${sport}`);
+            
+            // Google Analytics event tracking
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'sport_selection', {
+                    event_category: 'Navigation',
+                    event_label: sport,
+                    value: 1
+                });
+            }
+        }
+
+        // Global search functionality
+        let globalSearchTimeout;
+        let allGlobalMatches = [];
+
+        async function ensureGlobalMatchesLoaded() {
+            if (allGlobalMatches.length > 0) return;
+            if (!window.ArenaStreams) return;
+            try {
+                const [today, live] = await Promise.all([
+                    window.ArenaStreams.loadTodaysMatches(),
+                    window.ArenaStreams.loadLiveMatches()
+                ]);
+                const bySlug = new Map();
+                const addAll = (arr) => {
+                    if (Array.isArray(arr)) {
+                        arr.forEach(m => {
+                            const key = m.slug || `${m.teamA}-${m.teamB}-${m.date}`;
+                            if (!bySlug.has(key)) bySlug.set(key, m);
+                        });
+                    }
+                };
+                addAll(today);
+                addAll(live);
+                allGlobalMatches = Array.from(bySlug.values());
+            } catch (e) {
+                console.error('❌ Failed to load global matches:', e);
+            }
+        }
+
+        function renderGlobalResults(matches, searchTerm) {
+            const infoEl = document.getElementById('global-search-results');
+            const gridEl = document.getElementById('global-search-results-grid');
+            if (!gridEl || !window.ArenaStreams) return;
+            if (!searchTerm.trim()) {
+                infoEl.style.display = 'none';
+                gridEl.style.display = 'none';
+                gridEl.innerHTML = '';
+                return;
+            }
+            infoEl.textContent = `Found ${matches.length} match${matches.length !== 1 ? 'es' : ''} for "${searchTerm}"`;
+            infoEl.style.display = 'block';
+            window.ArenaStreams.renderMatches(matches, 'global-search-results-grid');
+            gridEl.style.display = matches.length ? 'grid' : 'none';
+        }
+
+        async function performGlobalSearch(searchTerm) {
+            if (!searchTerm.trim()) {
+                renderGlobalResults([], '');
+                return;
+            }
+            // Track search event in Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'search', {
+                    event_category: 'Search',
+                    event_label: searchTerm,
+                    search_term: searchTerm
+                });
+            }
+            await ensureGlobalMatchesLoaded();
+            const q = searchTerm.toLowerCase();
+            const filtered = allGlobalMatches.filter(m => {
+                const teamA = (m.teamA || '').toLowerCase();
+                const teamB = (m.teamB || '').toLowerCase();
+                const comp = (m.competition || '').toLowerCase();
+                const title = (m.title || '').toLowerCase();
+                return teamA.includes(q) || teamB.includes(q) || comp.includes(q) || title.includes(q);
+            });
+            renderGlobalResults(filtered, searchTerm);
+        }
+
+        // Track search navigation clicks
+        function trackSearchNavigation(searchTerm) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'search_navigation', {
+                    event_category: 'Search',
+                    event_label: searchTerm,
+                    search_term: searchTerm
+                });
+            }
+        }
+
+
+        // Initialize homepage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Display today's date immediately
+            displayTodaysDate();
+
+            // Copy link button functionality (Desktop) - Copy arenastreams.com like on match page
+            const copyLinkBtn = document.getElementById('copy-link-btn');
+            if (copyLinkBtn) {
+                copyLinkBtn.addEventListener('click', async function() {
+                    try {
+                        await navigator.clipboard.writeText('https://arenastreams.com');
+                        
+                        // Show success feedback
+                        const originalText = this.querySelector('span').textContent;
+                        const originalIcon = this.querySelector('svg').innerHTML;
+                        
+                        this.querySelector('span').textContent = 'Copied!';
+                        this.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+                        this.classList.add('bg-green-600', 'border-green-500');
+                        this.classList.remove('bg-primary', 'hover:bg-yellow-400');
+                        
+                        // Track copy event in Google Analytics
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'copy_link', {
+                                event_category: 'Social Sharing',
+                                event_label: 'Header Copy Link',
+                                value: 1
+                            });
+                        }
+                        
+                        // Reset after 2 seconds
+                        setTimeout(() => {
+                            this.querySelector('span').textContent = originalText;
+                            this.querySelector('svg').innerHTML = originalIcon;
+                            this.classList.remove('bg-green-600', 'border-green-500');
+                            this.classList.add('bg-primary', 'hover:bg-yellow-400');
+                        }, 2000);
+                        
+                    } catch (error) {
+                        console.error('Failed to copy link:', error);
+                        // Show error feedback
+                        const originalText = this.querySelector('span').textContent;
+                        this.querySelector('span').textContent = 'Failed';
+                        setTimeout(() => {
+                            this.querySelector('span').textContent = originalText;
+                        }, 2000);
+                    }
+                });
+            }
+
+            // Copy link button functionality (Mobile) - Copy arenastreams.com like on match page
+            const copyLinkBtnMobile = document.getElementById('copy-link-btn-mobile');
+            if (copyLinkBtnMobile) {
+                copyLinkBtnMobile.addEventListener('click', async function() {
+                    try {
+                        await navigator.clipboard.writeText('https://arenastreams.com');
+                        
+                        // Show success feedback
+                        const originalText = this.querySelector('span').textContent;
+                        const originalIcon = this.querySelector('svg').innerHTML;
+                        
+                        this.querySelector('span').textContent = 'Copied!';
+                        this.querySelector('svg').innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+                        this.classList.add('bg-green-600', 'border-green-500');
+                        this.classList.remove('bg-primary', 'hover:bg-yellow-400');
+                        
+                        // Track copy event in Google Analytics
+                        if (typeof gtag !== 'undefined') {
+                            gtag('event', 'copy_link', {
+                                event_category: 'Social Sharing',
+                                event_label: 'Mobile Copy Link',
+                                value: 1
+                            });
+                        }
+                        
+                        // Reset after 2 seconds
+                        setTimeout(() => {
+                            this.querySelector('span').textContent = originalText;
+                            this.querySelector('svg').innerHTML = originalIcon;
+                            this.classList.remove('bg-green-600', 'border-green-500');
+                            this.classList.add('bg-primary', 'hover:bg-yellow-400');
+                        }, 2000);
+                        
+                    } catch (error) {
+                        console.error('Failed to copy link:', error);
+                        // Show error feedback
+                        const originalText = this.querySelector('span').textContent;
+                        this.querySelector('span').textContent = 'Failed';
+                        setTimeout(() => {
+                            this.querySelector('span').textContent = originalText;
+                        }, 2000);
+                    }
+                });
+            }
+
+            // Initialize global search
+            const globalSearchInput = document.getElementById('global-search-input');
+            const globalSearchClear = document.getElementById('global-search-clear');
+
+            if (globalSearchInput) {
+                globalSearchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.trim();
+                    
+                    // Show/hide clear button
+                    if (globalSearchClear) {
+                        globalSearchClear.style.display = searchTerm ? 'flex' : 'none';
+                    }
+                    
+                    // Debounce search
+                    clearTimeout(globalSearchTimeout);
+                    globalSearchTimeout = setTimeout(() => {
+                        performGlobalSearch(searchTerm);
+                    }, 500);
+                });
+
+                // Clear button functionality
+                if (globalSearchClear) {
+                    globalSearchClear.addEventListener('click', function() {
+                        globalSearchInput.value = '';
+                        this.style.display = 'none';
+                        document.getElementById('global-search-results').style.display = 'none';
+                        globalSearchInput.focus();
+                    });
+                }
+            }
+            
+            // Mobile menu toggle - robust fallback
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            console.log('🔍 Mobile menu elements:', { mobileMenuBtn, mobileMenu });
+            
+            if (mobileMenuBtn && mobileMenu) {
+                // Remove any existing listeners first
+                const newMobileMenuBtn = mobileMenuBtn.cloneNode(true);
+                mobileMenuBtn.parentNode.replaceChild(newMobileMenuBtn, mobileMenuBtn);
+                
+                // Add robust event listener
+                newMobileMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('📱 Mobile menu button clicked');
+                    mobileMenu.classList.toggle('hidden');
+                    console.log('📱 Mobile menu hidden class:', mobileMenu.classList.contains('hidden'));
+                });
+                
+                // Also add touch event for mobile devices
+                newMobileMenuBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('📱 Mobile menu button touched');
+                    mobileMenu.classList.toggle('hidden');
+                    console.log('📱 Mobile menu hidden class:', mobileMenu.classList.contains('hidden'));
+                });
+                
+                console.log('✅ Mobile menu fallback initialized with robust event listeners');
+            } else {
+                console.log('❌ Mobile menu elements not found:', { 
+                    mobileMenuBtn: !!mobileMenuBtn, 
+                    mobileMenu: !!mobileMenu 
+                });
+            }
+            
+            // Add click handlers to sport cards
+            document.querySelectorAll('a[href^="/"]').forEach(link => {
+                if (link.href.includes('/football') || link.href.includes('/basketball') || 
+                    link.href.includes('/tennis') || link.href.includes('/ufc') || 
+                    link.href.includes('/rugby') || link.href.includes('/baseball') || 
+                    link.href.includes('/american-football') || link.href.includes('/hockey')) {
+                    link.addEventListener('click', function(e) {
+                        const sport = this.href.split('/').pop();
+                        trackSportSelection(sport);
+                    });
+                }
+            });
+
+            // Live Matches Dropdown Functionality
+            const sportDropdown = document.getElementById('sport-dropdown');
+            const liveMatchesLoading = document.getElementById('live-matches-loading');
+            const liveMatchesResults = document.getElementById('live-matches-results');
+            const liveMatchesList = document.getElementById('live-matches-list');
+            const noLiveMatches = document.getElementById('no-live-matches');
+            const selectedSportTitle = document.getElementById('selected-sport-title');
+
+            if (sportDropdown) {
+                // Wait for ArenaStreams to be available
+                const waitForArenaStreams = () => {
+                    if (window.ArenaStreams) {
+                        console.log('✅ ArenaStreams loaded, dropdown ready');
+                        return true;
+                    }
+                    return false;
+                };
+
+                // Check if ArenaStreams is already loaded
+                if (!waitForArenaStreams()) {
+                    // Wait for it to load
+                    const checkInterval = setInterval(() => {
+                        if (waitForArenaStreams()) {
+                            clearInterval(checkInterval);
+                        }
+                    }, 100);
+                }
+                sportDropdown.addEventListener('change', async function() {
+                    const selectedSport = this.value;
+                    
+                    if (!selectedSport) {
+                        liveMatchesResults.classList.add('hidden');
+                        return;
+                    }
+
+                    // Show loading state
+                    liveMatchesLoading.classList.remove('hidden');
+                    liveMatchesResults.classList.add('hidden');
+                    noLiveMatches.classList.add('hidden');
+
+                    try {
+                        // Use the same function that sports pages use to fetch matches
+                        if (!window.ArenaStreams) {
+                            console.error('ArenaStreams not loaded yet');
+                            liveMatchesLoading.classList.add('hidden');
+                            return;
+                        }
+
+                        const matches = await window.ArenaStreams.loadSportMatches(selectedSport);
+                        console.log(`📊 Loaded ${matches.length} matches for ${selectedSport}:`, matches);
+
+                        // Filter for live matches using the same logic as sports pages
+                        const liveMatches = matches.filter(match => {
+                            // Check if match has explicit live status first
+                            if (match.status === 'live') {
+                                return true;
+                            }
+                            
+                            // Use the same getMatchStatus logic as main.js
+                            const now = Date.now();
+                            let timestampMs;
+                            
+                            if (typeof match.date === 'string') {
+                                const parsed = Date.parse(match.date);
+                                if (!isNaN(parsed)) {
+                                    timestampMs = parsed;
+                                } else if (!isNaN(Number(match.date))) {
+                                    const n = Number(match.date);
+                                    timestampMs = n > 0 && n < 1e12 ? n * 1000 : n;
+                                }
+                            } else if (typeof match.date === 'number') {
+                                timestampMs = match.date > 0 && match.date < 1e12 ? match.date * 1000 : match.date;
+                            }
+                            
+                            if (!(timestampMs > 0)) {
+                                const fallback = new Date();
+                                fallback.setHours(fallback.getHours() + 2);
+                                timestampMs = fallback.getTime();
+                            }
+                            
+                            const diffMinutes = (timestampMs - now) / (1000 * 60);
+                            
+                            // Match is live if it started within the last 3 hours (same as getMatchStatus)
+                            return diffMinutes < 0 && diffMinutes > -180;
+                        }).slice(0, 10); // Limit to 10 matches
+
+                        // Hide loading state
+                        liveMatchesLoading.classList.add('hidden');
+
+                        if (liveMatches.length > 0) {
+                            // Update title
+                            const sportNames = {
+                                'football': '⚽ Football',
+                                'basketball': '🏀 Basketball', 
+                                'tennis': '🎾 Tennis',
+                                'ufc': '🥊 UFC',
+                                'rugby': '🏉 Rugby',
+                                'baseball': '⚾ Baseball',
+                                'american-football': '🏈 American Football',
+                                'cricket': '🏏 Cricket',
+                                'motor-sports': '🏁 Motor Sports',
+                                'hockey': '🏒 Hockey'
+                            };
+                            selectedSportTitle.textContent = `${sportNames[selectedSport]} Live Matches`;
+
+                            // Render live matches
+                            liveMatchesList.innerHTML = liveMatches.map(match => {
+                                const matchTitle = match.title || `${match.teamA} vs ${match.teamB}`;
+                                const matchSlug = match.slug || match.id || 'live-match';
+                                const competition = match.competition || match.category || selectedSport;
+                                
+                                return `
+                                    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 hover:border-primary transition-colors">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <h5 class="font-semibold text-white mb-1">${matchTitle}</h5>
+                                                <p class="text-sm text-gray-400">${competition}</p>
+                                            </div>
+                                            <div class="flex items-center space-x-3">
+                                                <div class="flex items-center space-x-1">
+                                                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                                    <span class="text-xs text-gray-400">Live</span>
+                                                </div>
+                                                <a href="/match/${matchSlug}" 
+                                                   class="bg-primary text-dark font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors text-sm">
+                                                    Watch
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+
+                            // Show results
+                            liveMatchesResults.classList.remove('hidden');
+                            noLiveMatches.classList.add('hidden');
+
+                            // Track dropdown usage
+                            if (typeof gtag !== 'undefined') {
+                                gtag('event', 'live_matches_view', {
+                                    event_category: 'Live Matches',
+                                    event_label: selectedSport,
+                                    value: liveMatches.length
+                                });
+                            }
+
+                        } else {
+                            // No live matches found
+                            liveMatchesResults.classList.add('hidden');
+                            noLiveMatches.classList.remove('hidden');
+                        }
+
+                    } catch (error) {
+                        console.error('Error fetching live matches:', error);
+                        liveMatchesLoading.classList.add('hidden');
+                        liveMatchesResults.classList.add('hidden');
+                        noLiveMatches.classList.remove('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <!-- Load obfuscated main code -->
+    <script src="/js/app.min.js"></script>
+    <script>
+      if (!window.ArenaStreams) {
+        document.write('<script src="/js/main.js"><\\/script>');
+      }
+    </script>
+</body>
+</html>

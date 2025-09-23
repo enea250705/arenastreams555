@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Match - ArenaStreams Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ffcc00',
+                        dark: '#1a1a1a',
+                        darker: '#0f0f0f'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darker text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-dark border-b border-gray-800">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-primary">🏟️ ArenaStreams Admin</h1>
+                </div>
+                <nav class="flex space-x-6">
+                    <a href="/" class="text-gray-400 hover:text-primary transition-colors">View Site</a>
+                    <a href="/admin" class="text-gray-400 hover:text-primary transition-colors">Dashboard</a>
+                    <a href="/admin/add-match" class="text-gray-400 hover:text-primary transition-colors">Add Match</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-4">Edit Match</h2>
+                <p class="text-gray-400">Update match details and regenerate the SEO page.</p>
+            </div>
+
+            <!-- Edit Match Form -->
+            <div class="bg-dark border border-gray-800 rounded-lg p-8">
+                <form method="POST" action="/admin/edit-match/{{match.id}}" class="space-y-6" enctype="multipart/form-data">
+                    <!-- Basic Match Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="sport" class="block text-sm font-semibold mb-2">Sport *</label>
+                            <select id="sport" name="sport" required class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                                <option value="">Select Sport</option>
+                                {{#each sports}}
+                                <option value="{{this}}" {{#if (eq ../match.sport this)}}selected{{/if}}>{{this}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="competition" class="block text-sm font-semibold mb-2">Competition *</label>
+                            <input type="text" id="competition" name="competition" required 
+                                   value="{{match.competition}}"
+                                   placeholder="e.g., Premier League, NBA, Wimbledon"
+                                   class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Teams -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="teamA" class="block text-sm font-semibold mb-2">Team A *</label>
+                            <input type="text" id="teamA" name="teamA" required 
+                                   value="{{match.teamA}}"
+                                   placeholder="e.g., Manchester United"
+                                   class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label for="teamB" class="block text-sm font-semibold mb-2">Team B *</label>
+                            <input type="text" id="teamB" name="teamB" required 
+                                   value="{{match.teamB}}"
+                                   placeholder="e.g., Liverpool"
+                                   class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Team Badges -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="teamABadge" class="block text-sm font-semibold mb-2">Team A Badge URL</label>
+                            <input type="url" id="teamABadge" name="teamABadge" 
+                                   value="{{match.teamABadge}}"
+                                   placeholder="https://example.com/team-a-badge.png"
+                                   class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                            <div class="mt-2">
+                                <label class="block text-sm font-semibold mb-2">Or upload Team A Logo</label>
+                                <input type="file" name="teamALogo" accept="image/*" class="w-full text-sm text-gray-300">
+                                {{#if match.teamABadge}}
+                                <p class="text-xs text-gray-400 mt-1">Current: <a href="{{match.teamABadge}}" target="_blank" class="text-primary">view</a></p>
+                                {{/if}}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="teamBBadge" class="block text-sm font-semibold mb-2">Team B Badge URL</label>
+                            <input type="url" id="teamBBadge" name="teamBBadge" 
+                                   value="{{match.teamBBadge}}"
+                                   placeholder="https://example.com/team-b-badge.png"
+                                   class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                            <div class="mt-2">
+                                <label class="block text-sm font-semibold mb-2">Or upload Team B Logo</label>
+                                <input type="file" name="teamBLogo" accept="image/*" class="w-full text-sm text-gray-300">
+                                {{#if match.teamBBadge}}
+                                <p class="text-xs text-gray-400 mt-1">Current: <a href="{{match.teamBBadge}}" target="_blank" class="text-primary">view</a></p>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date and Time -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="date" class="block text-sm font-semibold mb-2">Match Date *</label>
+                            <input type="date" id="date" name="date" required 
+                                   value="{{match.date}}"
+                                   class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label for="time" class="block text-sm font-semibold mb-2">Match Time</label>
+                            <input type="time" id="time" name="time" 
+                                   value="{{match.time}}"
+                                   class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="block text-sm font-semibold mb-2">Status</label>
+                        <select id="status" name="status" class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">
+                            <option value="upcoming" {{#if (eq match.status "upcoming")}}selected{{/if}}>Upcoming</option>
+                            <option value="live" {{#if (eq match.status "live")}}selected{{/if}}>Live</option>
+                            <option value="finished" {{#if (eq match.status "finished")}}selected{{/if}}>Finished</option>
+                        </select>
+                    </div>
+
+                    <!-- Stream URLs -->
+                    <div>
+                        <label for="embedUrls" class="block text-sm font-semibold mb-2">Stream URLs (one per line)</label>
+                        <textarea id="embedUrls" name="embedUrls" rows="4" 
+                                  placeholder="https://stream1.example.com/embed&#10;https://stream2.example.com/embed&#10;https://stream3.example.com/embed"
+                                  class="w-full bg-darker border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none">{{#if match.embedUrls}}{{#each match.embedUrls}}{{this}}
+{{/each}}{{/if}}</textarea>
+                        <p class="text-gray-400 text-sm mt-2">Enter one stream URL per line. These will be used for Player 1, Player 2, and Player 3 respectively.</p>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                        <button type="submit" class="bg-primary text-dark font-bold py-3 px-8 rounded-lg hover:bg-yellow-400 transition-colors">
+                            💾 Update Match
+                        </button>
+                        <a href="/admin" class="bg-gray-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-700 transition-colors text-center">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Match Info -->
+            <div class="bg-dark border border-gray-800 rounded-lg p-6 mt-8">
+                <h3 class="text-xl font-bold mb-4">Match Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-primary mb-2">Current Details</h4>
+                        <ul class="text-gray-400 text-sm space-y-1">
+                            <li><strong>ID:</strong> {{match.id}}</li>
+                            <li><strong>Slug:</strong> {{match.slug}}</li>
+                            <li><strong>Created:</strong> {{match.createdAt}}</li>
+                            <li><strong>Source:</strong> {{match.source}}</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-primary mb-2">SEO Page</h4>
+                        <p class="text-gray-400 text-sm mb-2">This match has an auto-generated SEO page:</p>
+                        <a href="/match/{{match.slug}}" class="text-primary hover:text-yellow-400 text-sm" target="_blank">
+                            View SEO Page →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark border-t border-gray-800 mt-16">
+        <div class="container mx-auto px-4 py-8 text-center text-gray-400 text-sm">
+            <p>&copy; 2025 ArenaStreams Admin Panel</p>
+        </div>
+    </footer>
+</body>
+</html>

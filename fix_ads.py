@@ -35,6 +35,46 @@ POPUNDER_SCRIPT = """
 </script>
 """
 
+# afraid-resolution.com & wide-detail.com ad scripts
+AFRAID_WIDE_SCRIPTS = """    <script>
+(function(hqfvt){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = hqfvt || {};
+s.src = "//afraid-resolution.com/cRD_9v6.bw2D5Al_S/WVQV9PNhjpgUwcNNz/Am0rOvSd0_2EOfDMAS3/MpDpUszr";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+    <script>
+(function(hidlnw){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = hidlnw || {};
+s.src = "//wide-detail.com/bDXkVls.dNGvlC0/YaWmcz/_e/mU9AusZ/U/lvkAPJTuY/4-MSDKcwwZNjTocct/N/jqgpwbNsziAC2QMBQI";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+    <script>
+(function(azxu){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = azxu || {};
+s.src = "//wide-detail.com/bvX.V_sXd/GhlT0FYKWRcY/se/my9IubZhUkl/k/PZTuYY4WMWD/cSw/NPzVMRtcNEj/grwhNzzGAw3TNIwk";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>
+    <script src="https://afraid-resolution.com/demRF/z.d/GqNXvaZMGFUO/qeTm-9wumZ/UelpkIPLT/Yo4XMZD-c/woOaD/kStaNsjvg/wVNSzvAi5/M/wZ"></script>
+"""
+
 EXTRA_SCRIPTS = """    <script src="https://deliverywhiskerspsychopath.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>
     <script src="https://pl28727804.effectivegatecpm.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>
     <script async="async" data-cfasync="false" src="https://pl28727869.effectivegatecpm.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js"></script>
@@ -49,7 +89,7 @@ EXTRA_SCRIPTS = """    <script src="https://deliverywhiskerspsychopath.com/ae/bb
   };
 </script>
     <script src="https://deliverywhiskerspsychopath.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke.js"></script>
-""" + POPUNDER_SCRIPT
+""" + AFRAID_WIDE_SCRIPTS + POPUNDER_SCRIPT
 
 BODY_AD_DIV = """    <div id="container-a0f8966beff4098b4229daf0d949f8d9"></div>
 """
@@ -70,6 +110,7 @@ VIEWS_DIR = os.path.join(os.path.dirname(__file__), 'views')
 CLCKD_META = '    <meta name="clckd" content="7e627cc99fbdafc273ac51e09967c665" />\n'
 VERIFY_META = '    <meta name="14532773303c81f63c3ec7d7f79df574d69d653a" content="14532773303c81f63c3ec7d7f79df574d69d653a" />\n'
 REFERRER_META = '    <meta name="referrer" content="no-referrer-when-downgrade" />\n'
+SITE_VERIFY_META = '    <meta name="6a97888e-site-verification" content="40b66adcfa98fd49f44a74f809442a7f" />\n'
 
 def fix_head(content):
     # Insert clckd meta after <head> if not present
@@ -81,6 +122,12 @@ def fix_head(content):
     # Insert referrer meta after verify meta if not present
     if 'name="referrer" content="no-referrer-when-downgrade"' not in content:
         content = content.replace(VERIFY_META.rstrip(), VERIFY_META.rstrip() + '\n' + REFERRER_META, 1)
+    # Insert site-verification meta (6a97888e) after referrer meta if not present
+    if '6a97888e-site-verification' not in content:
+        content = content.replace(REFERRER_META.rstrip(), REFERRER_META.rstrip() + '\n' + SITE_VERIFY_META, 1)
+        # Fallback: if still missing (e.g. no referrer meta), insert after <head>
+        if '6a97888e-site-verification' not in content:
+            content = re.sub(r'(<head>\s*\n)', r'\1' + SITE_VERIFY_META, content, count=1)
     # Remove commented-out obfuscated block (<!--<script ... voljr... -->)
     content = re.sub(r'\n\s*<!--<script[\s\S]+?voljr\.com[^>]+></script>\s*[^\n]*-->', '\n', content, count=1)
     # Remove obfuscated script line (contains "var K='ChmaorrCfozdgenzi" and ends with yohle or voljr)
@@ -108,6 +155,13 @@ def fix_head(content):
         content = re.sub(
             r'(    <script>\(function\(s\)\{s\.dataset\.zone=\'10618028\',s\.src=\'https://gizokraijaw\.net/vignette\.min\.js\'\}\)\([\s\S]+?</script>)\n',
             r'\1\n' + EXTRA_SCRIPTS + '\n',
+            content, count=1
+        )
+    # Insert afraid-resolution / wide-detail scripts if not present (for already-processed views)
+    if 'afraid-resolution.com/cRD_9v6' not in content and 'deliverywhiskerspsychopath.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke.js' in content:
+        content = re.sub(
+            r'(    <script src="https://deliverywhiskerspsychopath\.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke\.js"></script>)\n',
+            r'\1\n' + AFRAID_WIDE_SCRIPTS + '\n',
             content, count=1
         )
     # Insert second Google tag (G-S9DL2J6QBF) after existing gtag block if not present

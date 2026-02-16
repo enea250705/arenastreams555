@@ -68,11 +68,19 @@ NEW_GTAG = """    <!-- Google tag (gtag.js) -->
 VIEWS_DIR = os.path.join(os.path.dirname(__file__), 'views')
 
 CLCKD_META = '    <meta name="clckd" content="7e627cc99fbdafc273ac51e09967c665" />\n'
+VERIFY_META = '    <meta name="14532773303c81f63c3ec7d7f79df574d69d653a" content="14532773303c81f63c3ec7d7f79df574d69d653a" />\n'
+REFERRER_META = '    <meta name="referrer" content="no-referrer-when-downgrade" />\n'
 
 def fix_head(content):
     # Insert clckd meta after <head> if not present
     if 'name="clckd"' not in content:
         content = re.sub(r'(<head>\s*\n)', r'\1' + CLCKD_META, content, count=1)
+    # Insert verify meta (14532773303c81f63...) after clckd if not present
+    if '14532773303c81f63c3ec7d7f79df574d69d653a' not in content:
+        content = content.replace(CLCKD_META.rstrip(), CLCKD_META.rstrip() + '\n' + VERIFY_META, 1)
+    # Insert referrer meta after verify meta if not present
+    if 'name="referrer" content="no-referrer-when-downgrade"' not in content:
+        content = content.replace(VERIFY_META.rstrip(), VERIFY_META.rstrip() + '\n' + REFERRER_META, 1)
     # Remove commented-out obfuscated block (<!--<script ... voljr... -->)
     content = re.sub(r'\n\s*<!--<script[\s\S]+?voljr\.com[^>]+></script>\s*[^\n]*-->', '\n', content, count=1)
     # Remove obfuscated script line (contains "var K='ChmaorrCfozdgenzi" and ends with yohle or voljr)

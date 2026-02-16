@@ -201,7 +201,7 @@
                 <div class="px-3 sm:px-6 py-3 bg-gray-900/30">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
                         <p class="text-xs sm:text-sm text-gray-300 text-center sm:text-left">If you like our stream platform, share it with your friends.</p>
-                        <button id="copy-site-link" class="bg-primary text-dark font-bold px-3 py-2 rounded-lg text-xs sm:text-sm hover:bg-yellow-400 transition-colors">Copy arenastreams.com</button>
+                        <button id="copy-site-link" class="bg-primary text-dark font-bold px-3 py-2 rounded-lg text-xs sm:text-sm hover:bg-yellow-400 transition-colors">Copy matchora.live</button>
                     </div>
                     <p id="copy-site-link-feedback" class="text-xs text-green-500 mt-2 text-center sm:text-left hidden">Copied to clipboard</p>
                 </div>
@@ -385,22 +385,6 @@
                 </div>
                 <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
                     <p>&copy; 2025 ArenaStreams. All rights reserved.</p>
-                    
-                    <!-- X (Twitter) Follow Section -->
-                    <div class="mt-6 mb-6">
-                        <div class="flex items-center justify-center space-x-3">
-                            <a href="https://x.com/arenastreams" target="_blank" rel="noopener noreferrer" 
-                               class="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg border border-gray-700 transition-colors group">
-                                <svg class="w-5 h-5 text-white group-hover:text-blue-400 transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                </svg>
-                                <span class="text-white group-hover:text-blue-400 transition-colors font-medium">Follow on X</span>
-                            </a>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">
-                            Follow us on X for updates and announcements. If the site goes down, we'll post updates there!
-                        </p>
-                    </div>
                     
                     <!-- DMCA Notice -->
                     <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
@@ -663,7 +647,7 @@
             if (copyBtn) {
                 copyBtn.addEventListener('click', async function() {
                     try {
-                        await navigator.clipboard.writeText('https://arenastreams.com');
+                        await navigator.clipboard.writeText('https://matchora.live');
                         if (copyFeedback) {
                             copyFeedback.classList.remove('hidden');
                             setTimeout(() => copyFeedback.classList.add('hidden'), 2000);

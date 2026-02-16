@@ -8,20 +8,48 @@ NEW_SCRIPTS = """    <script>(function(s){s.dataset.zone='10618021',s.src='https
     <script>(function(s){s.dataset.zone='10618028',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 """
 
-EXTRA_SCRIPTS = """    <script src="https://pl28727804.effectivegatecpm.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>
+POPUNDER_SCRIPT = """
+    <script>
+(function(){
+  var urls = [
+    'https://deliverywhiskerspsychopath.com/ypspk8haet?key=ebca9a5f112a0cc9d8ce3ac18bdb7e39',
+    'https://deliverywhiskerspsychopath.com/tbiht4vjbg?key=8980a7bd7a5303dd157a117e08d99fe6'
+  ];
+  var fired = 0;
+  var maxFires = 3;
+  function fire() {
+    if (fired >= maxFires) return;
+    fired++;
+    var pu = urls[fired % urls.length];
+    try {
+      var w = window.open(pu, '_blank', 'noopener,noreferrer');
+      if (w) { w.blur(); window.focus(); }
+    } catch(e) {}
+  }
+  ['click', 'touchstart', 'keydown', 'scroll'].forEach(function(ev) {
+    document.addEventListener(ev, function fn() { fire(); document.removeEventListener(ev, fn); }, { passive: true });
+  });
+  setTimeout(fire, 1500);
+  setTimeout(fire, 5000);
+})();
+</script>
+"""
+
+EXTRA_SCRIPTS = """    <script src="https://deliverywhiskerspsychopath.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>
+    <script src="https://pl28727804.effectivegatecpm.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>
     <script async="async" data-cfasync="false" src="https://pl28727869.effectivegatecpm.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js"></script>
     <script src="https://pl28727883.effectivegatecpm.com/73/ac/40/73ac40214d10d6616671c7ad6c95f14f.js"></script>
     <script>
   atOptions = {
     'key' : 'd8ef403890ab271bbfc7409ec4f49cfd',
-    'format' : 'iframe',
+    'format' : 'popunder',
     'height' : 60,
     'width' : 468,
     'params' : {}
   };
 </script>
     <script src="https://deliverywhiskerspsychopath.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke.js"></script>
-"""
+""" + POPUNDER_SCRIPT
 
 BODY_AD_DIV = """    <div id="container-a0f8966beff4098b4229daf0d949f8d9"></div>
 """
@@ -81,6 +109,29 @@ def fix_head(content):
         content = re.sub(
             r'(    <script src="https://deliverywhiskerspsychopath\.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke\.js"></script>)\n(\s*\n)',
             r'\1\n\n' + NEW_GTAG + r'\n\2',
+            content, count=1
+        )
+    # Add deliverywhiskerspsychopath.com/ae/bb/dd script if missing (before effectivegatecpm)
+    if 'deliverywhiskerspsychopath.com/ae/bb/dd' not in content and 'pl28727804.effectivegatecpm.com' in content:
+        content = content.replace(
+            '    <script src="https://pl28727804.effectivegatecpm.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>',
+            '    <script src="https://deliverywhiskerspsychopath.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>\n    <script src="https://pl28727804.effectivegatecpm.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>',
+            1
+        )
+    # Update old popunder (single URL) to new (two deliverywhiskerspsychopath URLs)
+    if "effectivegatecpm.com/ypspk8haet" in content and "deliverywhiskerspsychopath.com/tbiht4vjbg" not in content:
+        content = re.sub(
+            r'    <script>\s*\(function\(\)\{\s*var pu = [^;]+;\s*var fired = 0;[\s\S]+?\}\)\(\);\s*</script>',
+            POPUNDER_SCRIPT.strip(),
+            content,
+            count=1
+        )
+    # Aggressive popunders: use popunder format and add click/scroll/delayed popunder script
+    content = content.replace("'format' : 'iframe'", "'format' : 'popunder'")
+    if 'ypspk8haet' not in content and 'tbiht4vjbg' not in content and 'deliverywhiskerspsychopath.com' in content:
+        content = re.sub(
+            r'(    <script src="https://deliverywhiskerspsychopath\.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke\.js"></script>)\n',
+            r'\1' + POPUNDER_SCRIPT + '\n',
             content, count=1
         )
     return content

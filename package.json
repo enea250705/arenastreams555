@@ -1,5 +1,5 @@
-﻿{
-  "name": "MatchOra",
+{
+  "name": "matchora",
   "version": "1.0.0",
   "description": "Sports streaming aggregator with SEO-optimized match pages",
   "main": "server.js",
@@ -10,13 +10,7 @@
     "build:js": "javascript-obfuscator public/js/main.js --output public/js/app.min.js --compact true --self-defending true --control-flow-flattening true --dead-code-injection true --dead-code-injection-threshold 0.2 --string-array true --string-array-encoding base64 --string-array-threshold 0.75 --rename-globals false --identifier-names-generator mangled --disable-console-output false --source-map false",
     "build": "npm run build:js"
   },
-  "keywords": [
-    "sports",
-    "streaming",
-    "seo",
-    "football",
-    "basketball"
-  ],
+  "keywords": ["sports", "streaming", "seo", "football", "basketball"],
   "author": "",
   "license": "ISC",
   "dependencies": {

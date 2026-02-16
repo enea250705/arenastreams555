@@ -67,7 +67,12 @@ NEW_GTAG = """    <!-- Google tag (gtag.js) -->
 
 VIEWS_DIR = os.path.join(os.path.dirname(__file__), 'views')
 
+CLCKD_META = '    <meta name="clckd" content="7e627cc99fbdafc273ac51e09967c665" />\n'
+
 def fix_head(content):
+    # Insert clckd meta after <head> if not present
+    if 'name="clckd"' not in content:
+        content = re.sub(r'(<head>\s*\n)', r'\1' + CLCKD_META, content, count=1)
     # Remove commented-out obfuscated block (<!--<script ... voljr... -->)
     content = re.sub(r'\n\s*<!--<script[\s\S]+?voljr\.com[^>]+></script>\s*[^\n]*-->', '\n', content, count=1)
     # Remove obfuscated script line (contains "var K='ChmaorrCfozdgenzi" and ends with yohle or voljr)

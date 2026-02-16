@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -297,71 +297,71 @@ let sportsData = [];
 
 // SEO Configuration
 const seoConfig = {
-  siteName: 'ArenaStreams',
+  siteName: 'MatchOra',
     siteDescription: 'Watch live sports streaming online free. Football, Basketball, Tennis, UFC, Rugby, Baseball, American Football, Cricket, Motor Sports, Hockey live streams in HD quality.',
-  siteUrl: 'https://arenastreams.com',
-  defaultImage: 'https://arenastreams.com/images/og-default.jpg',
-  twitterHandle: '@ArenaStreams',
+  siteUrl: 'https://matchora.live',
+  defaultImage: 'https://matchora.live/images/og-default.jpg',
+  twitterHandle: '@MatchOra',
   sports: {
     football: {
       name: 'Football',
       description: 'Watch football live streams online free. Premier League, Champions League, La Liga, Serie A, Bundesliga matches.',
       keywords: 'football live stream, soccer streaming, premier league live, champions league stream, football matches online',
-      image: 'https://arenastreams.com/images/football-og.jpg'
+      image: 'https://matchora.live/images/football-og.jpg'
     },
     basketball: {
       name: 'Basketball',
       description: 'Watch basketball live streams online free. NBA games, college basketball, international basketball matches.',
       keywords: 'basketball live stream, NBA streaming, basketball games live, NBA live stream free',
-      image: 'https://arenastreams.com/images/basketball-og.jpg'
+      image: 'https://matchora.live/images/basketball-og.jpg'
     },
     tennis: {
       name: 'Tennis',
       description: 'Watch tennis live streams online free. Grand Slam tournaments, ATP, WTA matches, Wimbledon, US Open.',
       keywords: 'tennis live stream, tennis streaming, grand slam live, Wimbledon live stream',
-      image: 'https://arenastreams.com/images/tennis-og.jpg'
+      image: 'https://matchora.live/images/tennis-og.jpg'
     },
     ufc: {
       name: 'UFC',
       description: 'Watch UFC live streams online free. MMA fights, UFC events, boxing matches, combat sports.',
       keywords: 'UFC live stream, MMA streaming, UFC fights live, MMA fights free',
-      image: 'https://arenastreams.com/images/ufc-og.jpg'
+      image: 'https://matchora.live/images/ufc-og.jpg'
     },
     rugby: {
       name: 'Rugby',
       description: 'Watch rugby live streams online free. Six Nations, Rugby World Cup, Premiership, international rugby.',
       keywords: 'rugby live stream, rugby streaming, six nations live, rugby world cup stream',
-      image: 'https://arenastreams.com/images/rugby-og.jpg'
+      image: 'https://matchora.live/images/rugby-og.jpg'
     },
     baseball: {
       name: 'Baseball',
       description: 'Watch baseball live streams online free. MLB games, World Series, baseball matches, baseball streaming.',
       keywords: 'baseball live stream, MLB streaming, baseball games live, MLB live stream free',
-      image: 'https://arenastreams.com/images/baseball-og.jpg'
+      image: 'https://matchora.live/images/baseball-og.jpg'
     },
     'american-football': {
       name: 'American Football',
       description: 'Watch American Football live streams online free. NFL games, Super Bowl, college football, NFL streaming.',
       keywords: 'NFL live stream, American football streaming, NFL games live, Super Bowl live stream, college football live',
-      image: 'https://arenastreams.com/images/americanfootball-og.jpg'
+      image: 'https://matchora.live/images/americanfootball-og.jpg'
     },
     cricket: {
       name: 'Cricket',
       description: 'Watch cricket live streams online free. IPL, World Cup, Test matches, ODI, T20 cricket matches.',
       keywords: 'cricket live stream, cricket streaming, IPL live stream, cricket world cup, test match live, ODI cricket',
-      image: 'https://arenastreams.com/images/cricket-og.jpg'
+      image: 'https://matchora.live/images/cricket-og.jpg'
     },
     'motor-sports': {
       name: 'Motor Sports',
       description: 'Watch motor sports live streams online free. Formula 1, MotoGP, NASCAR, IndyCar, Rally racing live streams.',
       keywords: 'motor sports live stream, F1 live stream, MotoGP live stream, NASCAR live stream, Formula 1 streaming, racing live',
-      image: 'https://arenastreams.com/images/motorsports-og.jpg'
+      image: 'https://matchora.live/images/motorsports-og.jpg'
     },
     hockey: {
       name: 'Hockey',
       description: 'Watch hockey live streams online free. NHL games, Stanley Cup, college hockey, international hockey matches.',
       keywords: 'hockey live stream, NHL streaming, hockey games live, NHL live stream free, Stanley Cup live, college hockey',
-      image: 'https://arenastreams.com/images/hockey-og.jpg'
+      image: 'https://matchora.live/images/hockey-og.jpg'
     }
   }
 };
@@ -1795,7 +1795,7 @@ app.get('/api/viewers/bulk', (req, res) => {
 // Advanced Sitemap route with dynamic content
 app.get('/sitemap.xml', async (req, res) => {
   try {
-    const baseUrl = 'https://arenastreams.com';
+    const baseUrl = 'https://matchora.live';
     const currentDate = new Date().toISOString();
     
     // Get live matches for dynamic content
@@ -1865,7 +1865,7 @@ app.get('/sitemap-sports.xml', async (req, res) => {
   try {
     const sports = ['football', 'basketball', 'tennis', 'ufc', 'rugby', 'baseball', 'american-football', 'cricket', 'motor-sports', 'hockey'];
     const urls = sports.map(sport => ({
-      loc: `https://arenastreams.com/${sport}`,
+      loc: `https://matchora.live/${sport}`,
       lastmod: new Date().toISOString(),
       changefreq: 'daily',
       priority: '0.9'
@@ -1892,13 +1892,13 @@ ${urls.map(url => `  <url>
 app.get('/sitemap-images.xml', async (req, res) => {
   try {
     const sports = [
-      { sport: 'football', name: 'Football', image: 'https://arenastreams.com/images/football-og.jpg' },
-      { sport: 'basketball', name: 'Basketball', image: 'https://arenastreams.com/images/basketball-og.jpg' },
-      { sport: 'tennis', name: 'Tennis', image: 'https://arenastreams.com/images/tennis-og.jpg' },
-      { sport: 'ufc', name: 'UFC', image: 'https://arenastreams.com/images/ufc-og.jpg' },
-      { sport: 'rugby', name: 'Rugby', image: 'https://arenastreams.com/images/rugby-og.jpg' },
-      { sport: 'baseball', name: 'Baseball', image: 'https://arenastreams.com/images/baseball-og.jpg' },
-      { sport: 'american-football', name: 'American Football', image: 'https://arenastreams.com/images/american-football-og.jpg' }
+      { sport: 'football', name: 'Football', image: 'https://matchora.live/images/football-og.jpg' },
+      { sport: 'basketball', name: 'Basketball', image: 'https://matchora.live/images/basketball-og.jpg' },
+      { sport: 'tennis', name: 'Tennis', image: 'https://matchora.live/images/tennis-og.jpg' },
+      { sport: 'ufc', name: 'UFC', image: 'https://matchora.live/images/ufc-og.jpg' },
+      { sport: 'rugby', name: 'Rugby', image: 'https://matchora.live/images/rugby-og.jpg' },
+      { sport: 'baseball', name: 'Baseball', image: 'https://matchora.live/images/baseball-og.jpg' },
+      { sport: 'american-football', name: 'American Football', image: 'https://matchora.live/images/american-football-og.jpg' }
     ];
     
     // Get live matches for dynamic image content
@@ -1915,25 +1915,25 @@ app.get('/sitemap-images.xml', async (req, res) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <!-- Homepage images -->
   <url>
-    <loc>https://arenastreams.com/</loc>
+    <loc>https://matchora.live/</loc>
     <image:image>
-      <image:loc>https://arenastreams.com/images/arenastreams-logo.png</image:loc>
-      <image:caption>ArenaStreams - Live Sports Streaming Platform</image:caption>
-      <image:title>ArenaStreams Logo</image:title>
+      <image:loc>https://matchora.live/images/MatchOra-logo.png</image:loc>
+      <image:caption>MatchOra - Live Sports Streaming Platform</image:caption>
+      <image:title>MatchOra Logo</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://arenastreams.com/images/football-og.jpg</image:loc>
-      <image:caption>Football Live Streaming on ArenaStreams</image:caption>
+      <image:loc>https://matchora.live/images/football-og.jpg</image:loc>
+      <image:caption>Football Live Streaming on MatchOra</image:caption>
       <image:title>Football Live Streaming</image:title>
     </image:image>
   </url>
   
   <!-- Sport pages with relevant images -->
 ${sports.map(sport => `  <url>
-    <loc>https://arenastreams.com/${sport.sport}</loc>
+    <loc>https://matchora.live/${sport.sport}</loc>
     <image:image>
       <image:loc>${sport.image}</image:loc>
-      <image:caption>${sport.name} Live Streaming - Watch ${sport.name} matches live on ArenaStreams</image:caption>
+      <image:caption>${sport.name} Live Streaming - Watch ${sport.name} matches live on MatchOra</image:caption>
       <image:title>${sport.name} Live Streaming</image:title>
     </image:image>
   </url>`).join('\n')}
@@ -1947,7 +1947,7 @@ ${liveMatches.slice(0, 50).map(match => {
     .trim() : `match-${match.id}`;
   
   return `  <url>
-    <loc>https://arenastreams.com/match/${slug}-${match.id}</loc>
+    <loc>https://matchora.live/match/${slug}-${match.id}</loc>
     ${match.teamABadge ? `<image:image>
       <image:loc>${match.teamABadge}</image:loc>
       <image:caption>${match.teamA} vs ${match.teamB} - Live Match</image:caption>
@@ -1975,15 +1975,15 @@ app.get('/sitemap-index.xml', (req, res) => {
   const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>https://arenastreams.com/sitemap.xml</loc>
+    <loc>https://matchora.live/sitemap.xml</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://arenastreams.com/sitemap-sports.xml</loc>
+    <loc>https://matchora.live/sitemap-sports.xml</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>
   <sitemap>
-    <loc>https://arenastreams.com/sitemap-images.xml</loc>
+    <loc>https://matchora.live/sitemap-images.xml</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
   </sitemap>
 </sitemapindex>`;
@@ -2006,15 +2006,15 @@ Disallow: /update-match
 Crawl-delay: 1
 
 # Sitemap location - Main sitemap index
-Sitemap: https://arenastreams.com/sitemap-index.xml
+Sitemap: https://matchora.live/sitemap-index.xml
 
 # Individual sitemaps for different content types
-Sitemap: https://arenastreams.com/sitemap.xml
-Sitemap: https://arenastreams.com/sitemap-sports.xml
-Sitemap: https://arenastreams.com/sitemap-images.xml
+Sitemap: https://matchora.live/sitemap.xml
+Sitemap: https://matchora.live/sitemap-sports.xml
+Sitemap: https://matchora.live/sitemap-images.xml
 
 # Host directive for canonical domain
-Host: https://arenastreams.com`);
+Host: https://matchora.live`);
 });
 
 // Privacy Policy route
@@ -2070,7 +2070,7 @@ app.get('/api/admin/adblock-stats', (req, res) => {
 // Initialize data and start server
 initializeData().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 ArenaStreams server running on port ${PORT}`);
+    console.log(`🚀 MatchOra server running on port ${PORT}`);
     console.log(`📱 Homepage: http://localhost:${PORT}`);
     console.log(`⚽ Football: http://localhost:${PORT}/football`);
     console.log(`🏀 Basketball: http://localhost:${PORT}/basketball`);

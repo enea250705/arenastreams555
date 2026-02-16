@@ -1,4 +1,4 @@
-// Script to update all sport pages with 11/10 SEO
+﻿// Script to update all sport pages with 11/10 SEO
 const fs = require('fs');
 const path = require('path');
 
@@ -75,18 +75,18 @@ sports.forEach(sport => {
     .replace(/{{sport\.name}}/g, sport.charAt(0).toUpperCase() + sport.slice(1))
     .replace(/{{sport\.description}}/g, sportDescriptions[sport])
     .replace(/{{sport\.keywords}}/g, sportKeywords[sport])
-    .replace(/{{sport\.image}}/g, `https://arenastreams.com/images/${sport}-og.jpg`)
-    .replace(/{{seo\.title}}/g, `${sport.charAt(0).toUpperCase() + sport.slice(1)} Live Streams | ArenaStreams - Free ${sport.charAt(0).toUpperCase() + sport.slice(1)} Streaming`)
+    .replace(/{{sport\.image}}/g, `https://matchora.live/images/${sport}-og.jpg`)
+    .replace(/{{seo\.title}}/g, `${sport.charAt(0).toUpperCase() + sport.slice(1)} Live Streams | MatchOra - Free ${sport.charAt(0).toUpperCase() + sport.slice(1)} Streaming`)
     .replace(/{{seo\.description}}/g, sportDescriptions[sport])
     .replace(/{{seo\.keywords}}/g, sportKeywords[sport])
-    .replace(/{{seo\.canonical}}/g, `https://arenastreams.com/${sport}`)
-    .replace(/{{seo\.ogTitle}}/g, `${sport.charAt(0).toUpperCase() + sport.slice(1)} Live Streams | ArenaStreams`)
+    .replace(/{{seo\.canonical}}/g, `https://matchora.live/${sport}`)
+    .replace(/{{seo\.ogTitle}}/g, `${sport.charAt(0).toUpperCase() + sport.slice(1)} Live Streams | MatchOra`)
     .replace(/{{seo\.ogDescription}}/g, sportDescriptions[sport])
-    .replace(/{{seo\.ogImage}}/g, `https://arenastreams.com/images/${sport}-og.jpg`)
+    .replace(/{{seo\.ogImage}}/g, `https://matchora.live/images/${sport}-og.jpg`)
     .replace(/{{seo\.twitterCard}}/g, 'summary_large_image')
-    .replace(/{{seo\.twitterTitle}}/g, `${sport.charAt(0).toUpperCase() + sport.slice(1)} Live Streams | ArenaStreams`)
+    .replace(/{{seo\.twitterTitle}}/g, `${sport.charAt(0).toUpperCase() + sport.slice(1)} Live Streams | MatchOra`)
     .replace(/{{seo\.twitterDescription}}/g, sportDescriptions[sport])
-    .replace(/{{seo\.twitterImage}}/g, `https://arenastreams.com/images/${sport}-og.jpg`);
+    .replace(/{{seo\.twitterImage}}/g, `https://matchora.live/images/${sport}-og.jpg`);
 
   // Update league links
   const leagues = sportLeagues[sport];

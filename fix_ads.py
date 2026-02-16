@@ -8,6 +8,35 @@ NEW_SCRIPTS = """    <script>(function(s){s.dataset.zone='10618021',s.src='https
     <script>(function(s){s.dataset.zone='10618028',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 """
 
+EXTRA_SCRIPTS = """    <script src="https://pl28727804.effectivegatecpm.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js"></script>
+    <script async="async" data-cfasync="false" src="https://pl28727869.effectivegatecpm.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js"></script>
+    <script src="https://pl28727883.effectivegatecpm.com/73/ac/40/73ac40214d10d6616671c7ad6c95f14f.js"></script>
+    <script>
+  atOptions = {
+    'key' : 'd8ef403890ab271bbfc7409ec4f49cfd',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+</script>
+    <script src="https://deliverywhiskerspsychopath.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke.js"></script>
+"""
+
+BODY_AD_DIV = """    <div id="container-a0f8966beff4098b4229daf0d949f8d9"></div>
+"""
+
+NEW_GTAG = """    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S9DL2J6QBF"></script>
+    <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-S9DL2J6QBF');
+</script>
+"""
+
 VIEWS_DIR = os.path.join(os.path.dirname(__file__), 'views')
 
 def fix_head(content):
@@ -33,6 +62,27 @@ def fix_head(content):
         # If still no 4 scripts (e.g. no monetag), insert after <head>
         if '10618021' not in content:
             content = re.sub(r'(<head>\s*\n)', r'\1    <meta name="monetag" content="cfc48ed0c196c6c05dec1e04a64b2baa">\n' + NEW_SCRIPTS + '\n', content, count=1)
+    # Insert extra ad scripts (effectivegatecpm, deliverywhiskers) after the 4 scripts if not present
+    if 'effectivegatecpm' not in content and 'gizokraijaw.net' in content:
+        content = re.sub(
+            r'(    <script>\(function\(s\)\{s\.dataset\.zone=\'10618028\',s\.src=\'https://gizokraijaw\.net/vignette\.min\.js\'\}\)\([\s\S]+?</script>)\n',
+            r'\1\n' + EXTRA_SCRIPTS + '\n',
+            content, count=1
+        )
+    # Insert second Google tag (G-S9DL2J6QBF) after existing gtag block if not present
+    if 'G-S9DL2J6QBF' not in content and 'googletagmanager.com/gtag' in content:
+        content = re.sub(
+            r'(\s*<script async src="https://www\.googletagmanager\.com/gtag/js\?id=G-TM2J2414Z9"></script>\s*<script>[\s\S]+?</script>)\n',
+            r'\1\n' + NEW_GTAG + '\n',
+            content, count=1
+        )
+    # Pages without any gtag (terms, privacy, etc.): add G-S9DL2J6QBF after deliverywhiskers script
+    if 'G-S9DL2J6QBF' not in content and 'deliverywhiskerspsychopath.com' in content:
+        content = re.sub(
+            r'(    <script src="https://deliverywhiskerspsychopath\.com/d8ef403890ab271bbfc7409ec4f49cfd/invoke\.js"></script>)\n(\s*\n)',
+            r'\1\n\n' + NEW_GTAG + r'\n\2',
+            content, count=1
+        )
     return content
 
 def fix_body_otieu(content):
@@ -46,6 +96,12 @@ def fix_body_otieu(content):
     return content
 
 # Simpler otieu removal: remove blocks that contain the iframe
+def fix_body_extra_div(content):
+    """Insert effectivegatecpm container div after <body> if not present."""
+    if 'container-a0f8966beff4098b4229daf0d949f8d9' not in content:
+        content = re.sub(r'(<body[^>]*>)\s*\n', r'\1\n' + BODY_AD_DIV, content, count=1)
+    return content
+
 def fix_body_otieu_simple(content):
     # Remove banner ad section (section containing otieu)
     pattern = r'(\s*)<div class="[^"]*bg-gray-800[^"]*"[^>]*>\s*\n\s*<p class="[^"]*">Advertisement</p>\s*\n\s*<div[^>]*>\s*\n\s*<!-- Real Banner Ad -->\s*\n\s*<iframe src="https://otieu\.com/4/9889886"[^>]*>\s*</iframe>\s*\n\s*<p class="[^"]*">[^<]*</p>\s*\n\s*</div>\s*\n\s*</div>'
@@ -63,6 +119,7 @@ for fname in os.listdir(VIEWS_DIR):
         content = f.read()
     orig = content
     content = fix_head(content)
+    content = fix_body_extra_div(content)
     content = fix_body_otieu_simple(content)
     # Remove entire section wrappers containing otieu
     while 'otieu.com' in content:

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 
 const fs = require('fs');
 const path = require('path');
@@ -30,10 +30,10 @@ const adScript = `    <!-- Advanced Ad System -->
             // Register custom ad protection service worker
             navigator.serviceWorker.register('/sw-custom.js')
                 .then(registration => {
-                    console.log('🛡️ ArenaStreams Ad Protection SW registered:', registration);
+                    console.log('🛡️ MatchOra Ad Protection SW registered:', registration);
                 })
                 .catch(error => {
-                    console.log('❌ ArenaStreams Ad Protection SW registration failed:', error);
+                    console.log('❌ MatchOra Ad Protection SW registration failed:', error);
                 });
         }
     </script>`;
@@ -53,10 +53,10 @@ const oldServiceWorkerScript = `    <!-- Service Worker for Ad Control -->
             // Register custom ad protection service worker
             navigator.serviceWorker.register('/sw-custom.js')
                 .then(registration => {
-                    console.log('🛡️ ArenaStreams Ad Protection SW registered:', registration);
+                    console.log('🛡️ MatchOra Ad Protection SW registered:', registration);
                 })
                 .catch(error => {
-                    console.log('❌ ArenaStreams Ad Protection SW registration failed:', error);
+                    console.log('❌ MatchOra Ad Protection SW registration failed:', error);
                 });
         }
     </script>`;
@@ -134,10 +134,10 @@ const adScript = `    <!-- Advanced Ad System -->
             // Register custom ad protection service worker
             navigator.serviceWorker.register('/sw-custom.js')
                 .then(registration => {
-                    console.log('🛡️ ArenaStreams Ad Protection SW registered:', registration);
+                    console.log('🛡️ MatchOra Ad Protection SW registered:', registration);
                 })
                 .catch(error => {
-                    console.log('❌ ArenaStreams Ad Protection SW registration failed:', error);
+                    console.log('❌ MatchOra Ad Protection SW registration failed:', error);
                 });
         }
     </script>`;
@@ -157,10 +157,10 @@ const oldServiceWorkerScript = `    <!-- Service Worker for Ad Control -->
             // Register custom ad protection service worker
             navigator.serviceWorker.register('/sw-custom.js')
                 .then(registration => {
-                    console.log('🛡️ ArenaStreams Ad Protection SW registered:', registration);
+                    console.log('🛡️ MatchOra Ad Protection SW registered:', registration);
                 })
                 .catch(error => {
-                    console.log('❌ ArenaStreams Ad Protection SW registration failed:', error);
+                    console.log('❌ MatchOra Ad Protection SW registration failed:', error);
                 });
         }
     </script>`;

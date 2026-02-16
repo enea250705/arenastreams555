@@ -1,4 +1,4 @@
-// Google Analytics Configuration for ArenaStreams
+﻿// Google Analytics Configuration for MatchOra
 // Replace 'GA_MEASUREMENT_ID' with your actual GA4 Measurement ID
 
 const ANALYTICS_CONFIG = {

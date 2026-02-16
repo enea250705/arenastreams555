@@ -1,7 +1,7 @@
-// Custom Service Worker for ArenaStreams Ad Protection
+﻿// Custom Service Worker for MatchOra Ad Protection
 // Works alongside existing sw.js (propeller tracking)
 
-const CACHE_NAME = 'arenastreams-ads-v1';
+const CACHE_NAME = 'MatchOra-ads-v1';
 const AD_URLS = [
     'https://otieu.com/4/9889886',
     'https://otieu.com/4/9879177',
@@ -13,7 +13,7 @@ const AD_URLS = [
 
 // Install event - cache ad resources
 self.addEventListener('install', event => {
-    console.log('🛡️ ArenaStreams Ad Protection SW installed');
+    console.log('🛡️ MatchOra Ad Protection SW installed');
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             console.log('📦 Caching ad resources...');
@@ -109,7 +109,7 @@ self.addEventListener('message', event => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', event => {
-    console.log('🔄 ArenaStreams Ad Protection SW activated');
+    console.log('🔄 MatchOra Ad Protection SW activated');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
@@ -124,4 +124,4 @@ self.addEventListener('activate', event => {
     );
 });
 
-console.log('🛡️ ArenaStreams Custom Service Worker loaded');
+console.log('🛡️ MatchOra Custom Service Worker loaded');

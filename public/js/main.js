@@ -1,4 +1,4 @@
-// Main JavaScript for ArenaStreams - Streamed.pk API only v2.1
+// Main JavaScript for MatchOra - Streamed.pk API only v2.1
 document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu handling is done in individual templates
     
@@ -1151,7 +1151,7 @@ window.addEventListener('beforeunload', function() {
 });
 
 // Export functions for global use
-window.ArenaStreams = {
+window.MatchOra = {
     loadSportMatches,
     loadLiveMatches,
     loadTodaysMatches,

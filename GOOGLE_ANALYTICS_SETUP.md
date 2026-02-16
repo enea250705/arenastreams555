@@ -1,8 +1,8 @@
-# Google Analytics 4 (GA4) Setup for ArenaStreams
+﻿# Google Analytics 4 (GA4) Setup for MatchOra
 
 ## 📊 Overview
 
-This guide will help you set up Google Analytics 4 (GA4) tracking for your ArenaStreams website to monitor traffic, user behavior, and engagement.
+This guide will help you set up Google Analytics 4 (GA4) tracking for your MatchOra website to monitor traffic, user behavior, and engagement.
 
 ## 🚀 Quick Setup
 
@@ -11,9 +11,9 @@ This guide will help you set up Google Analytics 4 (GA4) tracking for your Arena
 1. Go to [Google Analytics](https://analytics.google.com/)
 2. Sign in with your Google account
 3. Click "Start measuring"
-4. Create a new property for ArenaStreams
+4. Create a new property for MatchOra
 5. Choose "Web" as your platform
-6. Enter your website URL: `https://arenastreams.com`
+6. Enter your website URL: `https://matchora.live`
 7. Select your industry category: "Sports"
 8. Choose your reporting time zone
 
@@ -183,7 +183,7 @@ The tracking code is optimized for mobile devices and will track:
 - [GA4 Documentation](https://developers.google.com/analytics/devguides/collection/ga4)
 - [GA4 Help Center](https://support.google.com/analytics/answer/10089681)
 
-### ArenaStreams Analytics
+### MatchOra Analytics
 - All tracking code is already implemented
 - Just replace `GA_MEASUREMENT_ID` with your actual ID
 - Events are automatically tracked when users interact with your site
@@ -198,4 +198,4 @@ The tracking code is optimized for mobile devices and will track:
 6. ✅ Set up custom reports and dashboards
 7. ✅ Monitor your traffic and optimize accordingly
 
-Your ArenaStreams website is now ready for comprehensive analytics tracking! 🚀
+Your MatchOra website is now ready for comprehensive analytics tracking! 🚀

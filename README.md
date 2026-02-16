@@ -1,10 +1,10 @@
-# 🏟️ ArenaStreams - Live Sports Streaming Platform
+﻿# 🏟️ MatchOra - Live Sports Streaming Platform
 
 [![Production Ready](https://img.shields.io/badge/Production-Ready-green.svg)](https://github.com/enea250705/arenasports)
 [![SEO Score](https://img.shields.io/badge/SEO-Score%2011%2F10-brightgreen.svg)](https://github.com/enea250705/arenasports)
 [![Security](https://img.shields.io/badge/Security-Hardened-blue.svg)](https://github.com/enea250705/arenasports)
 
-ArenaStreams is a production-ready sports streaming aggregator platform with **11/10 SEO optimization** designed to dominate the sports streaming niche. Watch live football, basketball, tennis, UFC, rugby, and baseball matches in HD quality with no registration required.
+MatchOra is a production-ready sports streaming aggregator platform with **11/10 SEO optimization** designed to dominate the sports streaming niche. Watch live football, basketball, tennis, UFC, rugby, and baseball matches in HD quality with no registration required.
 
 ## 🚀 Features
 
@@ -133,7 +133,7 @@ The platform integrates with Streamed.pk API for:
 npm install -g pm2
 
 # Start the application
-pm2 start server.js --name arenastreams
+pm2 start server.js --name MatchOra
 
 # Setup PM2 startup
 pm2 startup
@@ -225,4 +225,4 @@ If you encounter any issues or have questions:
 
 ---
 
-**Ready to dominate the sports streaming niche? Deploy ArenaStreams today!** 🚀⚽🏀🎾🥊🏉⚾
+**Ready to dominate the sports streaming niche? Deploy MatchOra today!** 🚀⚽🏀🎾🥊🏉⚾

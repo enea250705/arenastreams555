@@ -1,5 +1,5 @@
-{
-  "name": "arenastreams",
+﻿{
+  "name": "MatchOra",
   "version": "1.0.0",
   "description": "Sports streaming aggregator with SEO-optimized match pages",
   "main": "server.js",

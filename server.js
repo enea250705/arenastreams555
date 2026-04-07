@@ -3,11 +3,11 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const axios = require('axios');
 const handlebars = require('handlebars');
 const { minify } = require('html-minifier-terser');
 const fs = require('fs').promises;
-const http = require('http');
 
 // Register Handlebars helpers
 handlebars.registerHelper('json', function(context) {
@@ -141,6 +141,31 @@ app.use(compression({
   }
 }));
 
+// Rate limiting to prevent abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 2000, // 1000 users x ~2 API calls each in window
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path.startsWith('/api/viewers'), // never rate-limit SSE viewer streams
+});
+
+// Apply rate limiting to API routes
+app.use('/api/', limiter);
+
+// Match page rate limiting - generous for real users
+const matchLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // 1 per second is plenty
+  message: 'Too many match page requests, please slow down.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/match/', matchLimiter);
+app.use('/matchadblock/', matchLimiter);
+
 // Cache control for static assets
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1y',
@@ -237,18 +262,60 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Cache-busting middleware for Cloudflare Pages
+// Cloudflare-friendly cache headers
 app.use((req, res, next) => {
-  // Disable caching for HTML pages to ensure updates are visible
-  if (req.path === '/' || req.path.match(/^\/(football|basketball|tennis|ufc|rugby|baseball|american-football|cricket|motor-sports|admin|match|privacy|terms)(adblock)?$/)) {
-    res.set({
-      'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-      'Last-Modified': new Date().toUTCString(),
-      'ETag': `"${Date.now()}"`
-    });
+  // Never cache admin, SSE streams, POST endpoints, or internal match API
+  if (
+    req.path.startsWith('/admin') ||
+    req.path.startsWith('/api/viewers') ||
+    req.path.startsWith('/api/matches') ||
+    req.path.startsWith('/api/admin') ||
+    req.path === '/api/track-adblock' ||
+    req.method !== 'GET'
+  ) {
+    res.set('Cache-Control', 'no-store');
+    return next();
   }
+
+  // Live/stream data — changes fast, short cache
+  if (
+    req.path.includes('/live') ||
+    req.path.startsWith('/api/streamed/stream/')
+  ) {
+    res.set('Cache-Control', 'public, max-age=30, s-maxage=30');
+    return next();
+  }
+
+  // Match data API — 60s matches the frontend refresh rate
+  if (req.path.startsWith('/api/streamed/matches/')) {
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=60');
+    return next();
+  }
+
+  // Sports list — barely ever changes
+  if (req.path === '/api/streamed/sports') {
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=300');
+    return next();
+  }
+
+  // Match pages — fresh enough at 30s
+  if (req.path.startsWith('/match/') || req.path.startsWith('/matchadblock/')) {
+    res.set('Cache-Control', 'public, max-age=30, s-maxage=30');
+    return next();
+  }
+
+  // Homepage and sport listing pages — 60s is safe, data updates every 5 min
+  if (req.path === '/' || req.path.match(/^\/(football|basketball|tennis|ufc|rugby|baseball|american-football|cricket|motor-sports|hockey)(adblock)?$/)) {
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=60');
+    return next();
+  }
+
+  // Static info pages — cache longer
+  if (req.path === '/privacy' || req.path === '/terms') {
+    res.set('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+    return next();
+  }
+
   next();
 });
 
@@ -294,6 +361,36 @@ const STREAMED_API_BASE = 'https://streamed.pk/api';
 
 // Streamed.pk API only - no local data
 let sportsData = [];
+
+// In-memory cache for API responses
+const apiCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getCachedData(key) {
+  const cached = apiCache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  apiCache.delete(key);
+  return null;
+}
+
+function setCachedData(key, data) {
+  apiCache.set(key, {
+    data: data,
+    timestamp: Date.now()
+  });
+}
+
+// Clean up expired cache entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of apiCache.entries()) {
+    if (now - value.timestamp > CACHE_TTL) {
+      apiCache.delete(key);
+    }
+  }
+}, 60 * 1000); // Clean every minute
 
 // SEO Configuration
 const seoConfig = {
@@ -410,12 +507,19 @@ async function fetchSportsFromAPI() {
   }
 }
 
+// Compiled template cache - compile once, reuse forever
+const templateCache = new Map();
+
 // Template rendering function
 async function renderTemplate(templateName, data) {
   try {
-    const templatePath = path.join(__dirname, 'views', `${templateName}.html`);
-    const templateContent = await require('fs').promises.readFile(templatePath, 'utf8');
-    const template = handlebars.compile(templateContent);
+    let template = templateCache.get(templateName);
+    if (!template) {
+      const templatePath = path.join(__dirname, 'views', `${templateName}.html`);
+      const templateContent = await require('fs').promises.readFile(templatePath, 'utf8');
+      template = handlebars.compile(templateContent);
+      templateCache.set(templateName, template);
+    }
     return template(data);
   } catch (error) {
     console.error(`Error rendering template ${templateName}:`, error);
@@ -493,7 +597,7 @@ Object.keys(seoConfig.sports).forEach(sport => {
   });
 });
 
-// Match page route - fetch real data from Streamed.pk
+// Match page route - fetch real data from Streamed.pk with caching
 app.get('/match/:slug', async (req, res) => {
   try {
     // Track clean visit (no AdBlock)
@@ -501,264 +605,167 @@ app.get('/match/:slug', async (req, res) => {
     
     const { slug } = req.params;
     
-    // Try to find the match by searching through all sports
-    let matchData = null;
-    const sports = ['football', 'basketball', 'tennis', 'ufc', 'rugby', 'baseball', 'american-football', 'cricket', 'motor-sports', 'hockey'];
-    
     console.log(`🔍 Searching for match with slug: ${slug}`);
-    console.log(`🔍 Searching in sports: ${sports.join(', ')}`);
     
-    for (const sport of sports) {
-      try {
-        const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
-          timeout: 10000
-        });
-        
-        let matches = [];
-        if (Array.isArray(response.data)) {
-          matches = response.data;
-        } else if (response.data.value && Array.isArray(response.data.value)) {
-          matches = response.data.value;
-        }
-        
-        console.log(`🔍 ${sport}: found ${matches.length} matches`);
-        
-        // Filter american-football matches to exclude rugby/AFL matches
-        if (sport === 'american-football') {
-          matches = matches.filter(match => {
-            const title = match.title ? match.title.toLowerCase() : '';
-            const id = match.id ? match.id.toLowerCase() : '';
-            
-            // Exclude rugby matches (comprehensive list)
-            const rugbyKeywords = [
-              'rugby', 'npc:', 'super rugby', 'women\'s rugby', 'rugby world cup',
-              'taranaki', 'hawkes bay', 'hawke\'s bay', 'counties manukau', 'auckland',
-              'wellington', 'southland', 'canterbury', 'otago', 'tasman', 'waikato',
-              'north harbour', 'northland', 'manawatu', 'bay of plenty', 'force', 'brumbies',
-              'waratahs', 'reds', 'new zealand w', 'canada w'
-            ];
-            if (rugbyKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Exclude AFL (Australian Football League) matches
-            const aflKeywords = [
-              'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
-              'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
-              'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
-            ];
-            if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Keep NFL, college football, and American football networks
-            return true;
+    // Get all matches from cache or fetch fresh
+    let allMatches = getCachedData('all_matches');
+    if (!allMatches) {
+      console.log('🔄 Fetching fresh match data from all sports...');
+      allMatches = [];
+      const sports = ['football', 'basketball', 'tennis', 'ufc', 'rugby', 'baseball', 'american-football', 'cricket', 'motor-sports', 'hockey'];
+      
+      // Fetch matches for all sports in parallel
+      const sportPromises = sports.map(async (sport) => {
+        try {
+          const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
+            timeout: 10000
           });
+          
+          let matches = [];
+          if (Array.isArray(response.data)) {
+            matches = response.data;
+          } else if (response.data.value && Array.isArray(response.data.value)) {
+            matches = response.data.value;
+          }
+          
+          // Add sport info to each match
+          matches.forEach(match => match.sport = sport);
+          
+          console.log(`✅ ${sport}: found ${matches.length} matches`);
+          return matches;
+        } catch (error) {
+          console.log(`⚠️ Could not fetch ${sport} matches:`, error.message);
+          return [];
         }
-        
-        // Filter rugby matches to exclude NFL matches incorrectly categorized as rugby
-        if (sport === 'rugby') {
-          matches = matches.filter(match => {
-            const title = match.title ? match.title.toLowerCase() : '';
-            const id = match.id ? match.id.toLowerCase() : '';
-            
-            // Exclude NFL/American football matches
-            const nflKeywords = ['nfl:', 'nfl ', 'miami dolphins', 'buffalo bills', 'houston texans', 'jacksonville jaguars', 'pittsburgh steelers', 'new england patriots', 'dallas cowboys', 'chicago bears', 'green bay packers', 'cleveland browns', 'denver broncos', 'los angeles chargers', 'arizona cardinals', 'san francisco 49ers', 'kansas city chiefs', 'new york giants', 'detroit lions', 'baltimore ravens'];
-            if (nflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Exclude AFL (Australian Football League) matches
-            const aflKeywords = [
-              'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
-              'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
-              'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
-            ];
-            if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Keep actual rugby matches (NRL, NPC, Super Rugby, etc.)
-            return true;
-          });
-        }
-        
-        // Look for a match that matches our slug (try ID first, then title-based slug)
-        const foundMatch = matches.find(match => {
-          // Try direct ID match first
-          if (match.id === slug) {
-            console.log(`✅ Direct ID match found: ${match.id}`);
-            return true;
-          }
-          
-          // For motor sports and NFL channel matches, use the Streamed.pk ID as the slug directly
-          if ((sport === 'motor-sports' || sport === 'american-football') && match.id && !match.title.includes(' vs ')) {
-            console.log(`🔍 Checking ${sport} channel match "${match.title}": matchId="${match.id}" vs requestedSlug="${slug}"`);
-            if (match.id === slug) {
-              console.log(`✅ ${sport} channel match found by ID: ${match.id}`);
-              return true;
-            }
-            // Don't fall through to regular slug matching for channel matches
-            return false;
-          }
-          
-          // For other sports, use slug-based matching
-          let homeTeam = 'Team A';
-          let awayTeam = 'Team B';
-          
-          if (match.teams && match.teams.home && match.teams.away) {
-            homeTeam = match.teams.home.name || 'Team A';
-            awayTeam = match.teams.away.name || 'Team B';
-          } else if (match.title) {
-            if (match.title.includes(' vs ')) {
-              const titleParts = match.title.split(' vs ');
-              if (titleParts.length === 2) {
-                homeTeam = titleParts[0].trim();
-                awayTeam = titleParts[1].trim();
-              }
-            } else {
-              homeTeam = match.title;
-              awayTeam = 'Live';
-            }
-          }
-          
-          // Handle date for slug generation
-          let dateStr;
-          if (match.date && match.date > 0) {
-            dateStr = new Date(match.date).toISOString().split('T')[0];
-          } else {
-            dateStr = new Date().toISOString().split('T')[0];
-          }
-          
-          const expectedSlug = `${homeTeam}-vs-${awayTeam}-live-${dateStr}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          console.log(`🔍 Checking match "${match.title}": expectedSlug="${expectedSlug}" vs requestedSlug="${slug}"`);
-          if (expectedSlug === slug) {
-            console.log(`✅ Regular match found by slug: ${expectedSlug}`);
-            return true;
-          }
-          return false;
-        });
-        
-        if (foundMatch) {
-          console.log(`✅ Found match: ${foundMatch.title} (${foundMatch.id})`);
-          console.log(`📊 Match sources:`, foundMatch.sources ? `${foundMatch.sources.length} sources` : 'No sources');
-          console.log(`📊 Match data structure:`, Object.keys(foundMatch));
-          
-          // Process the match data
-          let homeTeam = 'Team A';
-          let awayTeam = 'Team B';
-          let teamABadge = '';
-          let teamBBadge = '';
-          
-          if (foundMatch.teams && foundMatch.teams.home && foundMatch.teams.away) {
-            homeTeam = foundMatch.teams.home.name || 'Team A';
-            awayTeam = foundMatch.teams.away.name || 'Team B';
-            teamABadge = foundMatch.teams.home.badge ? `https://streamed.pk/api/images/badge/${foundMatch.teams.home.badge}.webp` : '';
-            teamBBadge = foundMatch.teams.away.badge ? `https://streamed.pk/api/images/badge/${foundMatch.teams.away.badge}.webp` : '';
-          } else if (foundMatch.title) {
-            if (foundMatch.title.includes(' vs ')) {
-              const titleParts = foundMatch.title.split(' vs ');
-              if (titleParts.length === 2) {
-                homeTeam = titleParts[0].trim();
-                awayTeam = titleParts[1].trim();
-              }
-            } else {
-              // For motor sports, use the full title as home team
-              homeTeam = foundMatch.title;
-              awayTeam = 'Live';
-            }
-          }
-
-          // Fetch detailed stream data for motor sports using Streamed.pk API structure
-          let detailedStreams = [];
-          if (foundMatch.sources && foundMatch.sources.length > 0) {
-            try {
-              console.log(`🔄 Fetching detailed streams for motor sports match: ${foundMatch.id}`);
-              
-              // Fetch initial stream list (like in streamed.html)
-              const streamListResponse = await axios.get(`${STREAMED_API_BASE}/stream/embed/${foundMatch.id}`, {
-                timeout: 10000
-              });
-              
-              if (streamListResponse.data && Array.isArray(streamListResponse.data)) {
-                // Fetch individual stream details for each source
-                const streamDetails = await Promise.all(
-                  streamListResponse.data.map(async (streamRef) => {
-                    try {
-                      const streamDetailResponse = await axios.get(`${STREAMED_API_BASE}/stream/${streamRef.source}/${streamRef.id}`, {
-                        timeout: 10000
-                      });
-                      return streamDetailResponse.data;
-                    } catch (error) {
-                      console.log(`⚠️ Could not fetch stream details for ${streamRef.source}/${streamRef.id}:`, error.message);
-                      return null;
-                    }
-                  })
-                );
-                
-                // Filter out null results and flatten
-                detailedStreams = streamDetails.filter(stream => stream !== null).flat();
-                
-                // Sort by viewers (highest first)
-                detailedStreams.sort((a, b) => (b.viewers || 0) - (a.viewers || 0));
-                
-                console.log(`✅ Found ${detailedStreams.length} detailed streams for motor sports match`);
-              }
-            } catch (error) {
-              console.log(`⚠️ Could not fetch detailed streams for motor sports match:`, error.message);
-              // Fallback to original sources
-              detailedStreams = foundMatch.sources || [];
-            }
-          } else {
-            detailedStreams = foundMatch.sources || [];
-          }
-          
-          // Handle date
-          let matchDate;
-          if (foundMatch.date && foundMatch.date > 0) {
-            matchDate = new Date(foundMatch.date).toISOString();
-          } else {
-            const now = new Date();
-            now.setHours(now.getHours() + 2);
-            matchDate = now.toISOString();
-          }
-          
-          matchData = {
-            id: foundMatch.id,
-            teamA: homeTeam,
-            teamB: awayTeam,
-            competition: foundMatch.title || `${sport.charAt(0).toUpperCase() + sport.slice(1)} Match`,
-            date: matchDate,
-            slug: slug,
-            teamABadge: teamABadge,
-            teamBBadge: teamBBadge,
-            status: (() => {
-              if (foundMatch.title.includes(' vs ')) {
-                // Team vs team matches - use date-based status
-                return foundMatch.date && foundMatch.date > 0 ? 'upcoming' : 'live';
-              } else {
-                // Check if it's a known channel/network (always live)
-                const channelKeywords = ['snf:', 'tnf:', 'mnf:', 'nfl network', 'espn', 'fox sports', 'cbs sports', 'nbc sports', 'abc sports'];
-                const isChannel = channelKeywords.some(keyword => foundMatch.title.toLowerCase().includes(keyword));
-                return isChannel ? 'live' : (foundMatch.date && foundMatch.date > 0 ? 'upcoming' : 'live');
-              }
-            })(),
-            poster: foundMatch.poster ? `https://streamed.pk/api/images/poster/${foundMatch.poster}` : '',
-            popular: foundMatch.popular || false,
-            sources: detailedStreams,
-            category: foundMatch.category || sport,
-            sport: sport
-          };
-          
-          break;
-        }
-      } catch (error) {
-        console.log(`⚠️ Could not search ${sport} matches:`, error.message);
-      }
+      });
+      
+      const sportResults = await Promise.all(sportPromises);
+      allMatches = sportResults.flat();
+      
+      // Cache the results
+      setCachedData('all_matches', allMatches);
+      console.log(`📊 Cached ${allMatches.length} total matches from all sports`);
+    } else {
+      console.log(`📊 Using cached match data: ${allMatches.length} matches`);
     }
     
-    // JSON storage fallback: search admin matches by slug
-    if (!matchData) {
+    // Apply filtering based on sport
+    let filteredMatches = allMatches;
+    
+    // Filter american-football matches to exclude rugby/AFL matches
+    filteredMatches = filteredMatches.map(match => {
+      if (match.sport === 'american-football') {
+        const title = match.title ? match.title.toLowerCase() : '';
+        const id = match.id ? match.id.toLowerCase() : '';
+        
+        // Exclude rugby matches (comprehensive list)
+        const rugbyKeywords = [
+          'rugby', 'npc:', 'super rugby', 'women\'s rugby', 'rugby world cup',
+          'taranaki', 'hawkes bay', 'hawke\'s bay', 'counties manukau', 'auckland',
+          'wellington', 'southland', 'canterbury', 'otago', 'tasman', 'waikato',
+          'north harbour', 'northland', 'manawatu', 'bay of plenty', 'force', 'brumbies',
+          'waratahs', 'reds', 'new zealand w', 'canada w'
+        ];
+        if (rugbyKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+        
+        // Exclude AFL (Australian Football League) matches
+        const aflKeywords = [
+          'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
+          'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
+          'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
+        ];
+        if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+      }
+      
+      // Filter rugby matches to exclude NFL matches incorrectly categorized as rugby
+      if (match.sport === 'rugby') {
+        const title = match.title ? match.title.toLowerCase() : '';
+        const id = match.id ? match.id.toLowerCase() : '';
+        
+        // Exclude NFL/American football matches
+        const nflKeywords = ['nfl:', 'nfl ', 'miami dolphins', 'buffalo bills', 'houston texans', 'jacksonville jaguars', 'pittsburgh steelers', 'new england patriots', 'dallas cowboys', 'chicago bears', 'green bay packers', 'cleveland browns', 'denver broncos', 'los angeles chargers', 'arizona cardinals', 'san francisco 49ers', 'kansas city chiefs', 'new york giants', 'detroit lions', 'baltimore ravens'];
+        if (nflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+        
+        // Exclude AFL (Australian Football League) matches
+        const aflKeywords = [
+          'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
+          'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
+          'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
+        ];
+        if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+      }
+      
+      return match;
+    }).filter(match => match !== null);
+    
+    // Look for a match that matches our slug
+    const foundMatch = filteredMatches.find(match => {
+      const sport = match.sport;
+      
+      // Try direct ID match first
+      if (match.id === slug) {
+        console.log(`✅ Direct ID match found: ${match.id}`);
+        return true;
+      }
+      
+      // For motor sports and NFL channel matches, use the Streamed.pk ID as the slug directly
+      if ((sport === 'motor-sports' || sport === 'american-football') && match.id && !match.title.includes(' vs ')) {
+        console.log(`🔍 Checking ${sport} channel match "${match.title}": matchId="${match.id}" vs requestedSlug="${slug}"`);
+        if (match.id === slug) {
+          console.log(`✅ ${sport} channel match found by ID: ${match.id}`);
+          return true;
+        }
+        // Don't fall through to regular slug matching for channel matches
+        return false;
+      }
+      
+      // For other sports, use slug-based matching
+      let homeTeam = 'Team A';
+      let awayTeam = 'Team B';
+      
+      if (match.teams && match.teams.home && match.teams.away) {
+        homeTeam = match.teams.home.name || 'Team A';
+        awayTeam = match.teams.away.name || 'Team B';
+      } else if (match.title) {
+        if (match.title.includes(' vs ')) {
+          const titleParts = match.title.split(' vs ');
+          if (titleParts.length === 2) {
+            homeTeam = titleParts[0].trim();
+            awayTeam = titleParts[1].trim();
+          }
+        } else {
+          homeTeam = match.title;
+          awayTeam = 'Live';
+        }
+      }
+      
+      // Handle date for slug generation
+      let dateStr;
+      if (match.date && match.date > 0) {
+        dateStr = new Date(match.date).toISOString().split('T')[0];
+      } else {
+        dateStr = new Date().toISOString().split('T')[0];
+      }
+      
+      const expectedSlug = `${homeTeam}-vs-${awayTeam}-live-${dateStr}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      console.log(`🔍 Checking match "${match.title}": expectedSlug="${expectedSlug}" vs requestedSlug="${slug}"`);
+      if (expectedSlug === slug) {
+        console.log(`✅ Regular match found by slug: ${expectedSlug}`);
+        return true;
+      }
+      return false;
+    });
+    
+    if (!foundMatch) {
+      // JSON storage fallback: search admin matches by slug
       try {
         const { getMatchBySlug } = require('./lib/json-storage');
         const matchRow = getMatchBySlug(slug);
@@ -786,8 +793,8 @@ app.get('/match/:slug', async (req, res) => {
         console.log('⚠️ JSON storage admin matches fallback failed:', e.message);
       }
     }
-
-    if (!matchData) {
+    
+    if (!foundMatch && !matchData) {
       console.log(`❌ No match found for slug: ${slug}`);
       return res.status(404).send(`
         <!DOCTYPE html>
@@ -802,7 +809,127 @@ app.get('/match/:slug', async (req, res) => {
       `);
     }
     
-    console.log(`📊 Rendering match page for: ${matchData.teamA} vs ${matchData.teamB}`);
+    const match = foundMatch || matchData;
+    console.log(`✅ Found match: ${match.title} (${match.id})`);
+    console.log(`📊 Match sources:`, match.sources ? `${match.sources.length} sources` : 'No sources');
+    console.log(`📊 Match data structure:`, Object.keys(match));
+    
+    // Process the match data
+    let homeTeam = 'Team A';
+    let awayTeam = 'Team B';
+    let teamABadge = '';
+    let teamBBadge = '';
+    
+    if (match.teams && match.teams.home && match.teams.away) {
+      homeTeam = match.teams.home.name || 'Team A';
+      awayTeam = match.teams.away.name || 'Team B';
+      teamABadge = match.teams.home.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : '';
+      teamBBadge = match.teams.away.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : '';
+    } else if (match.title) {
+      if (match.title.includes(' vs ')) {
+        const titleParts = match.title.split(' vs ');
+        if (titleParts.length === 2) {
+          homeTeam = titleParts[0].trim();
+          awayTeam = titleParts[1].trim();
+        }
+      } else {
+        // For motor sports, use the full title as home team
+        homeTeam = match.title;
+        awayTeam = 'Live';
+      }
+    }
+
+    // Fetch detailed stream data for motor sports using Streamed.pk API structure (with caching)
+    let detailedStreams = [];
+    if (match.sources && match.sources.length > 0) {
+      const cacheKey = `streams_${match.id}`;
+      detailedStreams = getCachedData(cacheKey);
+      
+      if (!detailedStreams) {
+        try {
+          console.log(`🔄 Fetching detailed streams for match: ${match.id}`);
+          
+          // Fetch initial stream list (like in streamed.html)
+          const streamListResponse = await axios.get(`${STREAMED_API_BASE}/stream/embed/${match.id}`, {
+            timeout: 10000
+          });
+          
+          if (streamListResponse.data && Array.isArray(streamListResponse.data)) {
+            // Fetch individual stream details for each source
+            const streamDetails = await Promise.all(
+              streamListResponse.data.map(async (streamRef) => {
+                try {
+                  const streamDetailResponse = await axios.get(`${STREAMED_API_BASE}/stream/${streamRef.source}/${streamRef.id}`, {
+                    timeout: 10000
+                  });
+                  return streamDetailResponse.data;
+                } catch (error) {
+                  console.log(`⚠️ Could not fetch stream details for ${streamRef.source}/${streamRef.id}:`, error.message);
+                  return null;
+                }
+              })
+            );
+            
+            // Filter out null results and flatten
+            detailedStreams = streamDetails.filter(stream => stream !== null).flat();
+            
+            // Sort by viewers (highest first)
+            detailedStreams.sort((a, b) => (b.viewers || 0) - (a.viewers || 0));
+            
+            // Cache the stream data
+            setCachedData(cacheKey, detailedStreams);
+            console.log(`✅ Cached ${detailedStreams.length} detailed streams for match ${match.id}`);
+          }
+        } catch (error) {
+          console.log(`⚠️ Could not fetch detailed streams for match:`, error.message);
+          // Fallback to original sources
+          detailedStreams = match.sources || [];
+        }
+      } else {
+        console.log(`📊 Using cached streams for match ${match.id}: ${detailedStreams.length} streams`);
+      }
+    } else {
+      detailedStreams = match.sources || [];
+    }
+    
+    // Handle date
+    let matchDate;
+    if (match.date && match.date > 0) {
+      matchDate = new Date(match.date).toISOString();
+    } else {
+      const now = new Date();
+      now.setHours(now.getHours() + 2);
+      matchDate = now.toISOString();
+    }
+    
+    const processedMatchData = {
+      id: match.id,
+      teamA: homeTeam,
+      teamB: awayTeam,
+      competition: match.title || `${match.sport.charAt(0).toUpperCase() + match.sport.slice(1)} Match`,
+      date: matchDate,
+      slug: slug,
+      teamABadge: teamABadge,
+      teamBBadge: teamBBadge,
+      status: (() => {
+        if (match.title.includes(' vs ')) {
+          // Team vs team matches - use date-based status
+          return match.date && match.date > 0 ? 'upcoming' : 'live';
+        } else {
+          // Check if it's a known channel/network (always live)
+          const channelKeywords = ['snf:', 'tnf:', 'mnf:', 'nfl network', 'espn', 'fox sports', 'cbs sports', 'nbc sports', 'abc sports'];
+          const isChannel = channelKeywords.some(keyword => match.title.toLowerCase().includes(keyword));
+          return isChannel ? 'live' : (match.date && match.date > 0 ? 'upcoming' : 'live');
+        }
+      })(),
+      poster: match.poster ? `https://streamed.pk/api/images/poster/${match.poster}` : '',
+      popular: match.popular || false,
+      sources: detailedStreams,
+      category: match.category || match.sport,
+      sport: match.sport
+    };
+    
+    console.log(`📊 Rendering match page for: ${processedMatchData.teamA} vs ${processedMatchData.teamB}`);
 
     // Apply server overrides if exist from Supabase
     try {
@@ -810,7 +937,7 @@ app.get('/match/:slug', async (req, res) => {
       const supabase = getSupabaseClient();
       const { data: override } = await supabase.from('overrides').select('embed_urls').eq('slug', slug).single();
       if (override && Array.isArray(override.embed_urls) && override.embed_urls.length > 0) {
-        matchData.embedUrls = override.embed_urls;
+        processedMatchData.embedUrls = override.embed_urls;
         console.log(`✅ Applied ${override.embed_urls.length} override server(s) for slug ${slug}`);
       }
     } catch (e) {
@@ -818,7 +945,7 @@ app.get('/match/:slug', async (req, res) => {
     }
     
     const html = await renderTemplate('match', {
-      match: matchData
+      match: processedMatchData
     });
     
     res.send(html);
@@ -1214,152 +1341,156 @@ app.get('/matchadblock/:slug', async (req, res) => {
     const { slug } = req.params;
     console.log(`🔍 Loading AdBlock match page for slug: ${slug}`);
     
-    // Try to find the match by searching through all sports
-    let matchData = null;
-    const sports = ['football', 'basketball', 'tennis', 'ufc', 'rugby', 'baseball', 'american-football', 'cricket', 'motor-sports', 'hockey'];
-    
-    for (const sport of sports) {
-      try {
-        const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
-          timeout: 10000
-        });
-        
-        let matches = [];
-        if (Array.isArray(response.data)) {
-          matches = response.data;
-        } else if (response.data.value && Array.isArray(response.data.value)) {
-          matches = response.data.value;
-        }
-        
-        console.log(`🔍 ${sport}: found ${matches.length} matches`);
-        
-        // Filter american-football matches to exclude rugby/AFL matches
-        if (sport === 'american-football') {
-          matches = matches.filter(match => {
-            const title = match.title ? match.title.toLowerCase() : '';
-            const id = match.id ? match.id.toLowerCase() : '';
-            
-            // Exclude rugby matches (comprehensive list)
-            const rugbyKeywords = [
-              'rugby', 'npc:', 'super rugby', 'women\'s rugby', 'rugby world cup',
-              'taranaki', 'hawkes bay', 'hawke\'s bay', 'counties manukau', 'auckland',
-              'wellington', 'southland', 'canterbury', 'otago', 'tasman', 'waikato',
-              'north harbour', 'northland', 'manawatu', 'bay of plenty', 'force', 'brumbies',
-              'waratahs', 'reds', 'new zealand w', 'canada w'
-            ];
-            if (rugbyKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Exclude AFL (Australian Football League) matches
-            const aflKeywords = [
-              'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
-              'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
-              'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
-            ];
-            if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Keep NFL, college football, and American football networks
-            return true;
+    // Get all matches from cache or fetch fresh
+    let allMatches = getCachedData('all_matches');
+    if (!allMatches) {
+      console.log('🔄 Fetching fresh match data from all sports for AdBlock...');
+      allMatches = [];
+      const sports = ['football', 'basketball', 'tennis', 'ufc', 'rugby', 'baseball', 'american-football', 'cricket', 'motor-sports', 'hockey'];
+      
+      // Fetch matches for all sports in parallel
+      const sportPromises = sports.map(async (sport) => {
+        try {
+          const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
+            timeout: 10000
           });
+          
+          let matches = [];
+          if (Array.isArray(response.data)) {
+            matches = response.data;
+          } else if (response.data.value && Array.isArray(response.data.value)) {
+            matches = response.data.value;
+          }
+          
+          // Add sport info to each match
+          matches.forEach(match => match.sport = sport);
+          
+          return matches;
+        } catch (error) {
+          console.log(`⚠️ Could not fetch ${sport} matches for AdBlock:`, error.message);
+          return [];
         }
-        
-        // Filter rugby matches to exclude NFL matches incorrectly categorized as rugby
-        if (sport === 'rugby') {
-          matches = matches.filter(match => {
-            const title = match.title ? match.title.toLowerCase() : '';
-            const id = match.id ? match.id.toLowerCase() : '';
-            
-            // Exclude NFL/American football matches
-            const nflKeywords = ['nfl:', 'nfl ', 'miami dolphins', 'buffalo bills', 'houston texans', 'jacksonville jaguars', 'pittsburgh steelers', 'new england patriots', 'dallas cowboys', 'chicago bears', 'green bay packers', 'cleveland browns', 'denver broncos', 'los angeles chargers', 'arizona cardinals', 'san francisco 49ers', 'kansas city chiefs', 'new york giants', 'detroit lions', 'baltimore ravens'];
-            if (nflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Exclude AFL (Australian Football League) matches
-            const aflKeywords = [
-              'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
-              'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
-              'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
-            ];
-            if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
-              return false;
-            }
-            
-            // Keep actual rugby matches (NRL, NPC, Super Rugby, etc.)
-            return true;
-          });
-        }
-        
-        // Look for a match that matches our slug (try ID first, then title-based slug)
-        const foundMatch = matches.find(match => {
-          // Try direct ID match first
-          if (match.id === slug) {
-            console.log(`✅ AdBlock: Direct ID match found: ${match.id}`);
-            return true;
-          }
-          
-          // For motor sports and NFL channel matches, use the Streamed.pk ID as the slug directly
-          if ((sport === 'motor-sports' || sport === 'american-football') && match.id && !match.title.includes(' vs ')) {
-            console.log(`🔍 AdBlock: Checking ${sport} channel match "${match.title}": matchId="${match.id}" vs requestedSlug="${slug}"`);
-            if (match.id === slug) {
-              console.log(`✅ AdBlock: ${sport} channel match found by ID: ${match.id}`);
-              return true;
-            }
-            // Don't fall through to regular slug matching for channel matches
-            return false;
-          }
-          
-          // For other sports, use slug-based matching
-          let homeTeam = 'Team A';
-          let awayTeam = 'Team B';
-          
-          if (match.teams && match.teams.home && match.teams.away) {
-            homeTeam = match.teams.home.name || 'Team A';
-            awayTeam = match.teams.away.name || 'Team B';
-          } else if (match.title) {
-            if (match.title.includes(' vs ')) {
-              const titleParts = match.title.split(' vs ');
-              if (titleParts.length === 2) {
-                homeTeam = titleParts[0].trim();
-                awayTeam = titleParts[1].trim();
-              }
-            } else {
-              homeTeam = match.title;
-              awayTeam = 'Live';
-            }
-          }
-          
-          // Handle date for slug generation
-          let dateStr;
-          if (match.date && match.date > 0) {
-            dateStr = new Date(match.date).toISOString().split('T')[0];
-          } else {
-            dateStr = new Date().toISOString().split('T')[0];
-          }
-          
-          const expectedSlug = `${homeTeam}-vs-${awayTeam}-live-${dateStr}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
-          console.log(`🔍 AdBlock: Checking match "${match.title}": expectedSlug="${expectedSlug}" vs requestedSlug="${slug}"`);
-          if (expectedSlug === slug) {
-            console.log(`✅ AdBlock: Regular match found by slug: ${expectedSlug}`);
-            return true;
-          }
-          return false;
-        });
-        
-        if (foundMatch) {
-          matchData = { ...foundMatch, sport };
-          break;
-        }
-      } catch (error) {
-        console.log(`No matches found for ${sport}`);
-      }
+      });
+      
+      const sportResults = await Promise.all(sportPromises);
+      allMatches = sportResults.flat();
+      
+      // Cache the results
+      setCachedData('all_matches', allMatches);
     }
     
-    // If not found in API, check admin-added matches
-    if (!matchData) {
+    // Apply filtering
+    let filteredMatches = allMatches;
+    
+    // Filter american-football matches to exclude rugby/AFL matches
+    filteredMatches = filteredMatches.map(match => {
+      if (match.sport === 'american-football') {
+        const title = match.title ? match.title.toLowerCase() : '';
+        const id = match.id ? match.id.toLowerCase() : '';
+        
+        // Exclude rugby matches
+        const rugbyKeywords = [
+          'rugby', 'npc:', 'super rugby', 'women\'s rugby', 'rugby world cup',
+          'taranaki', 'hawkes bay', 'hawke\'s bay', 'counties manukau', 'auckland',
+          'wellington', 'southland', 'canterbury', 'otago', 'tasman', 'waikato',
+          'north harbour', 'northland', 'manawatu', 'bay of plenty', 'force', 'brumbies',
+          'waratahs', 'reds', 'new zealand w', 'canada w'
+        ];
+        if (rugbyKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+        
+        // Exclude AFL matches
+        const aflKeywords = [
+          'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
+          'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
+          'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
+        ];
+        if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+      }
+      
+      // Filter rugby matches to exclude NFL matches
+      if (match.sport === 'rugby') {
+        const title = match.title ? match.title.toLowerCase() : '';
+        const id = match.id ? match.id.toLowerCase() : '';
+        
+        const nflKeywords = ['nfl:', 'nfl ', 'miami dolphins', 'buffalo bills', 'houston texans', 'jacksonville jaguars', 'pittsburgh steelers', 'new england patriots', 'dallas cowboys', 'chicago bears', 'green bay packers', 'cleveland browns', 'denver broncos', 'los angeles chargers', 'arizona cardinals', 'san francisco 49ers', 'kansas city chiefs', 'new york giants', 'detroit lions', 'baltimore ravens'];
+        if (nflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+        
+        const aflKeywords = [
+          'afl', 'australian football', 'hawthorn', 'geelong cats', 'collingwood',
+          'essendon', 'fremantle', 'brisbane lions', 'port adelaide', 'magpies',
+          'bombers', 'dockers', 'power', 'premiership football', 'afl womens'
+        ];
+        if (aflKeywords.some(keyword => title.includes(keyword) || id.includes(keyword))) {
+          return null;
+        }
+      }
+      
+      return match;
+    }).filter(match => match !== null);
+    
+    // Look for a match that matches our slug
+    const foundMatch = filteredMatches.find(match => {
+      const sport = match.sport;
+      
+      // Try direct ID match first
+      if (match.id === slug) {
+        console.log(`✅ AdBlock: Direct ID match found: ${match.id}`);
+        return true;
+      }
+      
+      // For motor sports and NFL channel matches, use the Streamed.pk ID as the slug directly
+      if ((sport === 'motor-sports' || sport === 'american-football') && match.id && !match.title.includes(' vs ')) {
+        if (match.id === slug) {
+          console.log(`✅ AdBlock: ${sport} channel match found by ID: ${match.id}`);
+          return true;
+        }
+        return false;
+      }
+      
+      // For other sports, use slug-based matching
+      let homeTeam = 'Team A';
+      let awayTeam = 'Team B';
+      
+      if (match.teams && match.teams.home && match.teams.away) {
+        homeTeam = match.teams.home.name || 'Team A';
+        awayTeam = match.teams.away.name || 'Team B';
+      } else if (match.title) {
+        if (match.title.includes(' vs ')) {
+          const titleParts = match.title.split(' vs ');
+          if (titleParts.length === 2) {
+            homeTeam = titleParts[0].trim();
+            awayTeam = titleParts[1].trim();
+          }
+        } else {
+          homeTeam = match.title;
+          awayTeam = 'Live';
+        }
+      }
+      
+      // Handle date for slug generation
+      let dateStr;
+      if (match.date && match.date > 0) {
+        dateStr = new Date(match.date).toISOString().split('T')[0];
+      } else {
+        dateStr = new Date().toISOString().split('T')[0];
+      }
+      
+      const expectedSlug = `${homeTeam}-vs-${awayTeam}-live-${dateStr}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      if (expectedSlug === slug) {
+        console.log(`✅ AdBlock: Regular match found by slug: ${expectedSlug}`);
+        return true;
+      }
+      return false;
+    });
+    
+    if (!foundMatch) {
+      // If not found in API, check admin-added matches
       try {
         const supabase = getSupabaseClient();
         const { data: adminMatches } = await supabase
@@ -1376,15 +1507,16 @@ app.get('/matchadblock/:slug', async (req, res) => {
       }
     }
     
-    if (!matchData) {
+    if (!foundMatch && !matchData) {
       console.log(`❌ No match found for slug: ${slug}`);
       return res.status(404).send('Match not found');
     }
     
-    console.log(`✅ Found match data:`, matchData);
+    const match = foundMatch || matchData;
+    console.log(`✅ Found match data for AdBlock:`, match.title || `${match.teamA} vs ${match.teamB}`);
     
     // Check for server overrides
-    let embedUrls = matchData.embedUrls || [];
+    let embedUrls = match.embedUrls || [];
     try {
       const supabase = getSupabaseClient();
       const { data: overrides } = await supabase
@@ -1402,20 +1534,20 @@ app.get('/matchadblock/:slug', async (req, res) => {
     }
     
     const html = await renderTemplate('matchadblock', {
-      match: matchData,
+      match: match,
       embedUrls: embedUrls,
       seo: {
-        title: `${matchData.teamA} vs ${matchData.teamB} - Live Stream | ${seoConfig.siteName} - AdBlock Version`,
-        description: `Watch ${matchData.teamA} vs ${matchData.teamB} live stream in HD quality. Free streaming with no registration required - AdBlock version`,
-        keywords: `${matchData.teamA}, ${matchData.teamB}, live stream, ${matchData.sport}, adblock version`,
-        canonical: `${seoConfig.baseUrl}/matchadblock/${slug}`,
-        ogTitle: `${matchData.teamA} vs ${matchData.teamB} - Live Stream - AdBlock Version`,
-        ogDescription: `Watch ${matchData.teamA} vs ${matchData.teamB} live stream - AdBlock version`,
-        ogImage: `${seoConfig.baseUrl}/images/og-image.jpg`,
+        title: `${match.teamA || match.title} vs ${match.teamB || 'Live'} - Live Stream | ${seoConfig.siteName} - AdBlock Version`,
+        description: `Watch ${match.teamA || match.title} vs ${match.teamB || 'Live'} live stream in HD quality. Free streaming with no registration required - AdBlock version`,
+        keywords: `${match.teamA || match.title}, ${match.teamB || 'Live'}, live stream, ${match.sport}, adblock version`,
+        canonical: `${seoConfig.siteUrl}/matchadblock/${slug}`,
+        ogTitle: `${match.teamA || match.title} vs ${match.teamB || 'Live'} - Live Stream - AdBlock Version`,
+        ogDescription: `Watch ${match.teamA || match.title} vs ${match.teamB || 'Live'} live stream - AdBlock version`,
+        ogImage: `${seoConfig.siteUrl}/images/og-image.jpg`,
         twitterCard: 'summary_large_image',
-        twitterTitle: `${matchData.teamA} vs ${matchData.teamB} - Live Stream - AdBlock Version`,
-        twitterDescription: `Watch ${matchData.teamA} vs ${matchData.teamB} live stream - AdBlock version`,
-        twitterImage: `${seoConfig.baseUrl}/images/og-image.jpg`
+        twitterTitle: `${match.teamA || match.title} vs ${match.teamB || 'Live'} - Live Stream - AdBlock Version`,
+        twitterDescription: `Watch ${match.teamA || match.title} vs ${match.teamB || 'Live'} live stream - AdBlock version`,
+        twitterImage: `${seoConfig.siteUrl}/images/og-image.jpg`
       }
     });
     
@@ -1429,10 +1561,14 @@ app.get('/matchadblock/:slug', async (req, res) => {
 // Streamed.pk API proxy endpoints
 app.get('/api/streamed/sports', async (req, res) => {
   try {
-    const response = await axios.get(`${STREAMED_API_BASE}/sports`, {
-      timeout: 10000
-    });
-    res.json(response.data);
+    const cacheKey = 'proxy_sports';
+    let data = getCachedData(cacheKey);
+    if (!data) {
+      const response = await axios.get(`${STREAMED_API_BASE}/sports`, { timeout: 10000 });
+      data = response.data;
+      setCachedData(cacheKey, data);
+    }
+    res.json(data);
   } catch (error) {
     console.error('Error fetching sports:', error);
     res.status(500).json({ error: 'Failed to fetch sports' });
@@ -1442,13 +1578,21 @@ app.get('/api/streamed/sports', async (req, res) => {
 app.get('/api/streamed/matches/:sport', async (req, res) => {
   try {
     const { sport } = req.params;
-    const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
-      timeout: 15000
-    });
-    
-    let matches = response.data;
-    
+    const cacheKey = `proxy_matches_${sport}`;
+    let cached = getCachedData(cacheKey);
+
+    let matches;
+    if (cached) {
+      matches = cached;
+    } else {
+      const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
+        timeout: 15000
+      });
+      matches = response.data;
+    }
+
     // Apply filtering based on sport
+    if (!cached) setCachedData(cacheKey, matches);
     if (sport === 'american-football') {
       // Handle the API response structure
       if (Array.isArray(matches)) {
@@ -2067,18 +2211,15 @@ app.get('/api/admin/adblock-stats', (req, res) => {
   }
 });
 
-// Initialize data and start server
-initializeData().then(() => {
+// Initialize data at module load time (works for both Vercel and local)
+initializeData();
+
+// Export app for Vercel serverless
+module.exports = app;
+
+// For local development only
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`🚀 MatchOra server running on port ${PORT}`);
-    console.log(`📱 Homepage: http://localhost:${PORT}`);
-    console.log(`⚽ Football: http://localhost:${PORT}/football`);
-    console.log(`🏀 Basketball: http://localhost:${PORT}/basketball`);
-    console.log(`🎾 Tennis: http://localhost:${PORT}/tennis`);
-    console.log(`🥊 UFC: http://localhost:${PORT}/ufc`);
-    console.log(`🏉 Rugby: http://localhost:${PORT}/rugby`);
-    console.log(`⚾ Baseball: http://localhost:${PORT}/baseball`);
-    console.log(`🔧 Admin: http://localhost:${PORT}/admin`);
-    console.log(`📊 API: http://localhost:${PORT}/api/streamed/sports`);
   });
-});
+}

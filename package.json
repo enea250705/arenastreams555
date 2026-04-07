@@ -10,7 +10,13 @@
     "build:js": "javascript-obfuscator public/js/main.js --output public/js/app.min.js --compact true --self-defending true --control-flow-flattening true --dead-code-injection true --dead-code-injection-threshold 0.2 --string-array true --string-array-encoding base64 --string-array-threshold 0.75 --rename-globals false --identifier-names-generator mangled --disable-console-output false --source-map false",
     "build": "npm run build:js"
   },
-  "keywords": ["sports", "streaming", "seo", "football", "basketball"],
+  "keywords": [
+    "sports",
+    "streaming",
+    "seo",
+    "football",
+    "basketball"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -21,11 +27,13 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.3.2",
     "handlebars": "^4.7.8",
     "helmet": "^7.1.0",
     "html-minifier-terser": "^7.2.0",
     "moment": "^2.29.4",
     "multer": "^1.4.5-lts.1",
+    "pm2": "^6.0.14",
     "puppeteer": "^24.20.0",
     "slugify": "^1.6.6"
   },

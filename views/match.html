@@ -241,11 +241,17 @@
                         </p>
                     </div>
                 </div>
-                <!-- Banner Ad -->
+                <!-- Banner Ad below player -->
                 <div class="mt-4 sm:mt-6 text-center">
+                    <script src="https://5gvci.com/act/files/tag.min.js?z=10806018" data-cfasync="false" async></script>
                 </div>
             </div>
         </section>
+
+        <!-- Mid-page Ad -->
+        <div class="my-4 text-center">
+            <script>(function(s){s.dataset.zone='10806019',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        </div>
 
         <!-- Streaming Guide -->
         <section class="mb-8 max-w-4xl mx-auto">
@@ -296,6 +302,11 @@
                 </div>
             </div>
         </section>
+
+        <!-- Ad between sections -->
+        <div class="my-4 text-center">
+            <script>(function(s){s.dataset.zone='10806016',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        </div>
 
         <!-- Additional Information -->
         <section class="mb-8">
@@ -351,8 +362,14 @@
         </section>
     </main>
 
+    <!-- Sticky Bottom Banner Ad -->
+    <div id="sticky-bottom-ad" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;text-align:center;background:#111;padding:4px 0;border-top:1px solid #333;">
+        <button onclick="document.getElementById('sticky-bottom-ad').style.display='none'" style="position:absolute;top:2px;right:8px;background:transparent;border:none;color:#888;font-size:14px;cursor:pointer;z-index:10000;">✕</button>
+        <script src="https://quge5.com/88/tag.min.js" data-zone="224804" async data-cfasync="false"></script>
+    </div>
+
     <!-- Footer -->
-    <footer class="bg-dark border-t border-gray-800 mt-16">
+    <footer class="bg-dark border-t border-gray-800 mt-16" style="margin-bottom:60px;">
         <div class="container mx-auto px-4 py-8">
             <div class="text-center">
                 <h4 class="text-xl font-bold text-primary mb-4">🏟️ matchora</h4>
@@ -420,10 +437,14 @@
             localStorage.setItem('matchora_popups_' + adConfig.sessionId, count.toString());
         }
 
-        // Trigger popup ads - DISABLED to prevent blank page redirects
+        // Trigger popup ads on user interaction
         function triggerPopups(count) {
-            console.log('🚫 Popup ads disabled to prevent blank page redirects');
-            return;
+            try {
+                const max = Math.min(count, 2);
+                for (let i = 0; i < max; i++) {
+                    window.open('https://al5sm.com/?zone=10806016', '_blank');
+                }
+            } catch(e) {}
         }
 
         // Stream player functionality (variables moved to DOMContentLoaded)
@@ -681,10 +702,14 @@
                 autoLoadStreams();
             }, 2000); // Wait 2 seconds for page to fully load
 
-            // Re-enable monetized popup ads - DISABLED to prevent blank page redirects
+            // Popup ads - triggered on user click (bypasses popup blockers)
             window.triggerPopups = function triggerPopups(count) {
-                console.log('🚫 Popup ads disabled to prevent blank page redirects');
-                return;
+                try {
+                    const max = Math.min(count, 2);
+                    for (let i = 0; i < max; i++) {
+                        window.open('https://al5sm.com/?zone=10806016', '_blank');
+                    }
+                } catch(e) {}
             }
 
             // Play button functionality (First/Second click logic)

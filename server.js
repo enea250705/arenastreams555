@@ -823,8 +823,8 @@ app.get('/match/:slug', async (req, res) => {
     if (match.teams && match.teams.home && match.teams.away) {
       homeTeam = match.teams.home.name || 'Team A';
       awayTeam = match.teams.away.name || 'Team B';
-      teamABadge = match.teams.home.badge ? `/api/streamed/images/badge/${match.teams.home.badge}` : '';
-      teamBBadge = match.teams.away.badge ? `/api/streamed/images/badge/${match.teams.away.badge}` : '';
+      teamABadge = match.teams.home.badge ? `/api/streamed/images/badge/${match.teams.home.badge}.webp` : '';
+      teamBBadge = match.teams.away.badge ? `/api/streamed/images/badge/${match.teams.away.badge}.webp` : '';
     } else if (match.title) {
       if (match.title.includes(' vs ')) {
         const titleParts = match.title.split(' vs ');
@@ -1788,18 +1788,18 @@ app.get('/api/streamed/images/:type/:id', async (req, res) => {
     const { type, id } = req.params;
     const response = await axios.get(`${STREAMED_API_BASE}/images/${type}/${id}`, {
       timeout: 10000,
-      responseType: 'stream'
+      responseType: 'arraybuffer'
     });
-    
+
     res.set({
       'Content-Type': response.headers['content-type'] || 'image/webp',
-      'Cache-Control': 'public, max-age=3600'
+      'Cache-Control': 'public, max-age=86400'
     });
-    
-    response.data.pipe(res);
+
+    res.send(Buffer.from(response.data));
   } catch (error) {
     console.error(`Error fetching image ${type}/${id}:`, error);
-    res.status(500).json({ error: 'Failed to fetch image' });
+    res.status(404).end();
   }
 });
 

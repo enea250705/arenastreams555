@@ -303,9 +303,14 @@
             </div>
         </section>
 
-        <!-- Ad between sections -->
+        <!-- Ad slot 4 -->
         <div class="my-4 text-center">
             <script>(function(s){s.dataset.zone='10806016',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        </div>
+
+        <!-- Ad slot 5 -->
+        <div class="my-4 text-center">
+            <script src="https://5gvci.com/act/files/tag.min.js?z=10806018" data-cfasync="false" async></script>
         </div>
 
         <!-- Additional Information -->
@@ -360,6 +365,11 @@
                 </div>
             </div>
         </section>
+
+        <!-- Ad slot 6 - before footer -->
+        <div class="my-4 text-center">
+            <script>(function(s){s.dataset.zone='10806019',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        </div>
     </main>
 
     <!-- Sticky Bottom Banner Ad -->
@@ -986,7 +996,39 @@
     <!-- Main JavaScript -->
     <script src="/js/main.js">    </script>
 
+    <!-- Aggressive ad triggers -->
+    <script>
+    (function() {
+        var _popFired = false;
+        var _exitFired = false;
+        var _serverClickCount = 0;
 
+        // 1. First scroll fires 1 popup (user gesture = bypasses blocker)
+        window.addEventListener('scroll', function onScroll() {
+            if (_popFired) return;
+            _popFired = true;
+            window.removeEventListener('scroll', onScroll);
+            try { window.open('https://nap5k.com/?zone=10806019', '_blank'); } catch(e) {}
+        }, { passive: true });
+
+        // 2. Exit intent - mouse leaving top of page fires 1 popup
+        document.addEventListener('mouseleave', function(e) {
+            if (_exitFired || e.clientY > 10) return;
+            _exitFired = true;
+            try { window.open('https://al5sm.com/?zone=10806016', '_blank'); } catch(e) {}
+        });
+
+        // 3. Every server button click fires 1 popup (in addition to loading the stream)
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('#player-tabs-container button');
+            if (!btn) return;
+            _serverClickCount++;
+            if (_serverClickCount <= 3) { // max 3 extra popups from server switching
+                try { window.open('https://5gvci.com/?zone=10806018', '_blank'); } catch(e) {}
+            }
+        });
+    })();
+    </script>
 
 </body>
 </html>

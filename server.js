@@ -823,8 +823,8 @@ app.get('/match/:slug', async (req, res) => {
     if (match.teams && match.teams.home && match.teams.away) {
       homeTeam = match.teams.home.name || 'Team A';
       awayTeam = match.teams.away.name || 'Team B';
-      teamABadge = match.teams.home.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : '';
-      teamBBadge = match.teams.away.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : '';
+      teamABadge = match.teams.home.badge ? `/api/streamed/images/badge/${match.teams.home.badge}` : '';
+      teamBBadge = match.teams.away.badge ? `/api/streamed/images/badge/${match.teams.away.badge}` : '';
     } else if (match.title) {
       if (match.title.includes(' vs ')) {
         const titleParts = match.title.split(' vs ');

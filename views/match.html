@@ -4,7 +4,7 @@
     <meta name="monetag" content="6101daefdb18ab088d8cf761c35e815f">
     <!-- Popunders only in head - these don't need body -->
     <script src="https://quge5.com/88/tag.min.js" data-zone="224804" data-cfasync="false"></script>
-    <script>(function(){var _t=0;document.addEventListener("click",function(){var n=Date.now();if(n-_t>30000){_t=n;try{window.open("https://al5sm.com/?zone=10806016","_blank");}catch(e){}}},true);})();</script>
+    
 
 <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TM2J2414Z9"></script>
@@ -434,15 +434,8 @@
             localStorage.setItem('matchora_popups_' + adConfig.sessionId, count.toString());
         }
 
-        // Trigger popup ads on user interaction
-        function triggerPopups(count) {
-            try {
-                const max = Math.min(count, 2);
-                for (let i = 0; i < max; i++) {
-                    window.open('https://al5sm.com/?zone=10806016', '_blank');
-                }
-            } catch(e) {}
-        }
+        // Popunders handled by quge5 script natively
+        function triggerPopups(count) {}
 
         // Stream player functionality (variables moved to DOMContentLoaded)
         // Load real streams from Streamed.pk if available
@@ -699,15 +692,8 @@
                 autoLoadStreams();
             }, 2000); // Wait 2 seconds for page to fully load
 
-            // Popup ads - triggered on user click (bypasses popup blockers)
-            window.triggerPopups = function triggerPopups(count) {
-                try {
-                    const max = Math.min(count, 2);
-                    for (let i = 0; i < max; i++) {
-                        window.open('https://al5sm.com/?zone=10806016', '_blank');
-                    }
-                } catch(e) {}
-            }
+            // Popunders handled by quge5 script natively
+            window.triggerPopups = function triggerPopups(count) {}
 
             // Play button functionality (First/Second click logic)
             playBtn.addEventListener('click', function() {
@@ -986,34 +972,7 @@
     <!-- Aggressive ad triggers -->
     <script>
     (function() {
-        var _popFired = false;
-        var _exitFired = false;
-        var _serverClickCount = 0;
-
-        // 1. First scroll fires 1 popup (user gesture = bypasses blocker)
-        window.addEventListener('scroll', function onScroll() {
-            if (_popFired) return;
-            _popFired = true;
-            window.removeEventListener('scroll', onScroll);
-            try { window.open('https://nap5k.com/?zone=10806019', '_blank'); } catch(e) {}
-        }, { passive: true });
-
-        // 2. Exit intent - mouse leaving top of page fires 1 popup
-        document.addEventListener('mouseleave', function(e) {
-            if (_exitFired || e.clientY > 10) return;
-            _exitFired = true;
-            try { window.open('https://al5sm.com/?zone=10806016', '_blank'); } catch(e) {}
-        });
-
-        // 3. Every server button click fires 1 popup (in addition to loading the stream)
-        document.addEventListener('click', function(e) {
-            var btn = e.target.closest('#player-tabs-container button');
-            if (!btn) return;
-            _serverClickCount++;
-            if (_serverClickCount <= 3) { // max 3 extra popups from server switching
-                try { window.open('https://5gvci.com/?zone=10806018', '_blank'); } catch(e) {}
-            }
-        });
+        // Popunders handled by quge5 script natively on click
     })();
     </script>
 

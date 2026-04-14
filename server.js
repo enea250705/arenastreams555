@@ -84,13 +84,30 @@ app.use(helmet({
       scriptSrc: [
         "'self'",
         "'unsafe-inline'",
+        "'unsafe-eval'",
         "https://cdn.tailwindcss.com",
-        // Ads / partners
+        // Monetag ad network
+        "https://al5sm.com",
+        "https://n6wxm.com",
+        "https://nap5k.com",
+        "https://5gvci.com",
+        "https://quge5.com",
+        "https://izcle.com",
+        // Gatekeeper CMP
+        "https://cmp.gatekeeperconsent.com",
+        "https://the.gatekeeperconsent.com",
+        // data527 ads
+        "https://data527.click",
+        // PopCash
+        "https://cdn.popcash.net",
+        "https://cdn2.popcash.net",
+        // mrmnd
+        "https://ss.mrmnd.com",
+        // Legacy ad partners
         "https://fpyf8.com",
         "https://kt.restowelected.com",
         "https://np.mournersamoa.com",
         "https://madurird.com",
-        "https://al5sm.com",
         "https://shoukigaigoors.net",
         "https://tzegilo.com",
         // Google Analytics / Tag Manager

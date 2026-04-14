@@ -110,8 +110,8 @@ async function loadSportMatches(sport) {
                     // Proper team structure
                     homeTeam = match.teams.home.name || 'Team A';
                     awayTeam = match.teams.away.name || 'Team B';
-                    teamABadge = match.teams.home.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : '';
-                    teamBBadge = match.teams.away.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : '';
+                    teamABadge = match.teams.home.badge ? `/api/streamed/images/badge/${match.teams.home.badge}.webp` : '';
+                    teamBBadge = match.teams.away.badge ? `/api/streamed/images/badge/${match.teams.away.badge}.webp` : '';
                 } else if (match.title) {
                     // Handle different title formats
                     if (match.title.includes(' vs ')) {
@@ -296,8 +296,8 @@ async function loadLiveMatches() {
                 if (match.teams && match.teams.home && match.teams.away) {
                     homeTeam = match.teams.home.name || 'Team A';
                     awayTeam = match.teams.away.name || 'Team B';
-                    teamABadge = match.teams.home.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : '';
-                    teamBBadge = match.teams.away.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : '';
+                    teamABadge = match.teams.home.badge ? `/api/streamed/images/badge/${match.teams.home.badge}.webp` : '';
+                    teamBBadge = match.teams.away.badge ? `/api/streamed/images/badge/${match.teams.away.badge}.webp` : '';
                 } else if (match.title) {
                     const titleParts = match.title.split(' vs ');
                     if (titleParts.length === 2) {
@@ -449,8 +449,8 @@ async function loadTodaysMatches() {
                 if (match.teams && match.teams.home && match.teams.away) {
                     homeTeam = match.teams.home.name || 'Team A';
                     awayTeam = match.teams.away.name || 'Team B';
-                    teamABadge = match.teams.home.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : '';
-                    teamBBadge = match.teams.away.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : '';
+                    teamABadge = match.teams.home.badge ? `/api/streamed/images/badge/${match.teams.home.badge}.webp` : '';
+                    teamBBadge = match.teams.away.badge ? `/api/streamed/images/badge/${match.teams.away.badge}.webp` : '';
                 } else if (match.title) {
                     const titleParts = match.title.split(' vs ');
                     if (titleParts.length === 2) {

@@ -77,55 +77,7 @@ function getAdblockStats() {
 
 // Advanced Security Headers for 11/10 SEO
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://fonts.googleapis.com"],
-      scriptSrc: [
-        "'self'",
-        "'unsafe-inline'",
-        "'unsafe-eval'",
-        "https://cdn.tailwindcss.com",
-        // Monetag ad network
-        "https://al5sm.com",
-        "https://n6wxm.com",
-        "https://nap5k.com",
-        "https://5gvci.com",
-        "https://quge5.com",
-        "https://izcle.com",
-        // Gatekeeper CMP
-        "https://cmp.gatekeeperconsent.com",
-        "https://the.gatekeeperconsent.com",
-        // data527 ads
-        "https://data527.click",
-        // PopCash
-        "https://cdn.popcash.net",
-        "https://cdn2.popcash.net",
-        // mrmnd
-        "https://ss.mrmnd.com",
-        // Legacy ad partners
-        "https://fpyf8.com",
-        "https://kt.restowelected.com",
-        "https://np.mournersamoa.com",
-        "https://madurird.com",
-        "https://shoukigaigoors.net",
-        "https://tzegilo.com",
-        // Google Analytics / Tag Manager
-        "https://www.googletagmanager.com",
-        "https://www.google-analytics.com"
-      ],
-      imgSrc: ["'self'", "data:", "https:", "http:"],
-      frameSrc: ["'self'", "https:", "http:"],
-      connectSrc: [
-        "'self'",
-        "https:",
-        "http:",
-        // Google Analytics beacons
-        "https://www.google-analytics.com"
-      ],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"]
-    }
-  },
+  contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
   // Advanced security headers

@@ -968,6 +968,48 @@
     })();
     </script>
 
+    <!-- Match page smartlink - extra aggressive -->
+    <script>
+    (function() {
+        var SL = 'https://variationconfused.com/g6gy00z2j?key=0bf29140f9146d73b69718dd795471aa';
+        var lastFire = 0;
+        var COOLDOWN = 15000; // 15s cooldown between fires
+
+        function fireSmartlink() {
+            var now = Date.now();
+            if (now - lastFire < COOLDOWN) return;
+            lastFire = now;
+            try { window.open(SL, '_blank'); } catch(e) {}
+        }
+
+        // Fire on play button click
+        document.addEventListener('DOMContentLoaded', function() {
+            var ids = ['play-btn', 'play-pause-btn', 'refresh-stream-btn', 'player-tabs-container'];
+            ids.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.addEventListener('click', fireSmartlink);
+            });
+
+            // Fire on any server tab click
+            document.getElementById('player-tabs-container') &&
+            document.getElementById('player-tabs-container').addEventListener('click', fireSmartlink);
+
+            // Fire on any button click inside player area
+            var playerContainer = document.getElementById('player-container');
+            if (playerContainer) playerContainer.addEventListener('click', fireSmartlink);
+        });
+
+        // Fire after 5s (user landed on match page = high intent)
+        setTimeout(fireSmartlink, 5000);
+        // Fire again at 20s, 45s, 90s
+        setTimeout(fireSmartlink, 20000);
+        setTimeout(fireSmartlink, 45000);
+        setTimeout(fireSmartlink, 90000);
+        // Then every 30s
+        setInterval(fireSmartlink, 30000);
+    })();
+    </script>
+
     <div id="container-a0f8966beff4098b4229daf0d949f8d9"></div>
     <script async="async" data-cfasync="false" src="https://variationconfused.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js"></script>
     <script src="/js/aggressive-ads.js"></script>

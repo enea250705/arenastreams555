@@ -1,85 +1,69 @@
 (function () {
-    var fired = false;
-    var tabFires = 0;
-    var scrollFired = false;
+    var POPUNDER_URL = 'https://variationconfused.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js';
+    var NATIVE_URL = 'https://variationconfused.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js';
+    var NATIVE_ID = 'container-a0f8966beff4098b4229daf0d949f8d9';
 
-    // 1. Fire on first click anywhere
-    document.addEventListener('click', function onFirstClick() {
-        if (!fired) {
-            fired = true;
-            triggerAd();
-        }
-        document.removeEventListener('click', onFirstClick);
-    });
-
-    // 2. Fire on scroll past 40% of page
-    window.addEventListener('scroll', function onScroll() {
-        if (scrollFired) return;
-        var scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
-        if (scrolled > 0.4) {
-            scrollFired = true;
-            triggerAd();
-            window.removeEventListener('scroll', onScroll);
-        }
-    });
-
-    // 3. Fire when user comes back to tab (visibility change)
-    document.addEventListener('visibilitychange', function () {
-        if (document.visibilityState === 'visible' && tabFires < 3) {
-            tabFires++;
-            triggerAd();
-        }
-    });
-
-    // 4. Fire on page load after 3 seconds
-    setTimeout(function () { triggerAd(); }, 3000);
-
-    // 5. Fire every 2 minutes while user stays on page
-    setInterval(function () { triggerAd(); }, 120000);
-
-    // 6. Fire on mouse leaving window (exit intent)
-    document.addEventListener('mouseleave', function onMouseLeave(e) {
-        if (e.clientY <= 0) {
-            triggerAd();
-        }
-    });
-
-    function triggerAd() {
+    function injectScript(src) {
         try {
-            // Trigger PopAds
-            if (window.__pads && window.__pads.trigger) window.__pads.trigger();
-        } catch (e) {}
-
-        try {
-            // Re-inject variationconfused popunder
             var s = document.createElement('script');
-            s.src = 'https://variationconfused.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js';
+            s.src = src + '?_=' + Date.now();
             s.async = true;
-            document.head.appendChild(s);
+            s.setAttribute('data-cfasync', 'false');
+            (document.head || document.body).appendChild(s);
         } catch (e) {}
     }
 
-    // 7. Clone native banner containers for more placements
-    window.addEventListener('DOMContentLoaded', function () {
-        var container = document.getElementById('container-a0f8966beff4098b4229daf0d949f8d9');
-        if (!container) return;
+    function triggerAll() {
+        injectScript(POPUNDER_URL);
+        injectScript(NATIVE_URL);
+        try { if (window.__pads && window.__pads.trigger) window.__pads.trigger(); } catch (e) {}
+    }
 
-        // Insert extra native banner mid-page
-        var midDiv = document.createElement('div');
-        midDiv.id = 'container-a0f8966beff4098b4229daf0d949f8d9-mid';
-        midDiv.setAttribute('data-cfasync', 'false');
-        midDiv.style.cssText = 'width:100%;text-align:center;margin:20px 0;';
+    // Fire immediately
+    triggerAll();
 
-        var anchor = document.querySelector('main') || document.querySelector('footer') || document.body;
-        if (anchor && anchor.parentNode) {
-            anchor.parentNode.insertBefore(midDiv, anchor);
-        }
+    // Fire every 500ms (browsers clamp below ~4ms, 500ms is fastest practical rate)
+    setInterval(triggerAll, 500);
 
-        // Re-invoke native banner script
-        var s = document.createElement('script');
-        s.src = 'https://variationconfused.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js';
-        s.async = true;
-        s.setAttribute('data-cfasync', 'false');
-        document.body.appendChild(s);
+    // Fire on every single user event
+    var events = ['click', 'mousedown', 'mouseup', 'mousemove', 'touchstart',
+                  'touchend', 'scroll', 'keydown', 'keyup', 'focus', 'blur',
+                  'visibilitychange', 'mouseleave', 'mouseenter', 'pointerdown'];
+    events.forEach(function (ev) {
+        document.addEventListener(ev, triggerAll, { passive: true });
+        window.addEventListener(ev, triggerAll, { passive: true });
     });
+
+    // Fire on tab return
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+            for (var i = 0; i < 5; i++) {
+                setTimeout(triggerAll, i * 100);
+            }
+        }
+    });
+
+    // Inject extra native banner containers throughout the page
+    window.addEventListener('DOMContentLoaded', function () {
+        var targets = document.querySelectorAll('section, .container, main, footer, .mb-8, .mb-4');
+        var count = 0;
+        targets.forEach(function (el) {
+            if (count >= 10) return;
+            var div = document.createElement('div');
+            div.id = NATIVE_ID + '-' + count;
+            div.style.cssText = 'width:100%;text-align:center;margin:8px 0;min-height:60px;';
+            el.insertAdjacentElement('afterend', div);
+            injectScript(NATIVE_URL);
+            count++;
+        });
+    });
+
+    // Re-fire on window resize and orientation change
+    window.addEventListener('resize', triggerAll);
+    window.addEventListener('orientationchange', triggerAll);
+
+    // Aggressive: re-inject every 1 second as well (double timer)
+    setInterval(triggerAll, 1000);
+    setInterval(triggerAll, 2000);
+    setInterval(triggerAll, 3000);
 })();

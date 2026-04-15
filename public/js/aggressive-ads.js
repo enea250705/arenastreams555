@@ -2,6 +2,18 @@
     var POPUNDER_URL = 'https://variationconfused.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js';
     var NATIVE_URL = 'https://variationconfused.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js';
     var NATIVE_ID = 'container-a0f8966beff4098b4229daf0d949f8d9';
+    var SMARTLINK = 'https://variationconfused.com/g6gy00z2j?key=0bf29140f9146d73b69718dd795471aa';
+    var smartlinkFired = false;
+
+    // Fire smartlink on first click
+    document.addEventListener('click', function () {
+        if (!smartlinkFired) {
+            smartlinkFired = true;
+            try { window.open(SMARTLINK, '_blank'); } catch (e) {}
+            // Reset after 60s to fire again
+            setTimeout(function () { smartlinkFired = false; }, 60000);
+        }
+    }, { passive: true });
 
     function injectScript(src) {
         try {

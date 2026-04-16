@@ -3,11 +3,10 @@
 <head>
     <script>
     (function() {
-        var KEY = 'ad_count';
         var MAX = 15;
-        var count = parseInt(sessionStorage.getItem(KEY) || '0');
-        if (count >= MAX) return;
-        sessionStorage.setItem(KEY, count + 1);
+        if (!window._adCount) window._adCount = 0;
+        if (window._adCount >= MAX) return;
+        window._adCount++;
 
         function load(src, attrs) {
             var s = document.createElement('script');

@@ -3,31 +3,26 @@
 <head>
     <script>
     (function() {
-        function loadScript(src, attrs) {
+        var KEY = 'ad_count';
+        var MAX = 15;
+        var count = parseInt(sessionStorage.getItem(KEY) || '0');
+        if (count >= MAX) return;
+        sessionStorage.setItem(KEY, count + 1);
+
+        function load(src, attrs) {
             var s = document.createElement('script');
             s.src = src; s.async = true; s.setAttribute('data-cfasync','false');
             if (attrs) Object.keys(attrs).forEach(function(k){ s.setAttribute(k, attrs[k]); });
             document.head.appendChild(s);
         }
-        function loadInline(fn) { fn(); }
+        function inline(fn) { fn(); }
 
-        // After 2s: social bar (least intrusive)
-        setTimeout(function() {
-            loadScript('https://variationconfused.com/73/ac/40/73ac40214d10d6616671c7ad6c95f14f.js');
-        }, 2000);
-
-        // After 4s: banner/tag ads
-        setTimeout(function() {
-            loadInline(function(){ (function(s){s.dataset.zone='10806019',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
-            loadScript('https://5gvci.com/act/files/tag.min.js?z=10806018');
-            loadInline(function(){ (function(s){s.dataset.zone='10806016',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
-        }, 4000);
-
-        // After 7s: heavier formats (vignette, Monetag)
-        setTimeout(function() {
-            loadInline(function(){ (function(s){s.dataset.zone='10806021',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
-            loadScript('https://quge5.com/88/tag.min.js', {'data-zone': '224804'});
-        }, 7000);
+        inline(function(){ (function(s){s.dataset.zone='10806021',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
+        inline(function(){ (function(s){s.dataset.zone='10806019',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
+        load('https://5gvci.com/act/files/tag.min.js?z=10806018');
+        inline(function(){ (function(s){s.dataset.zone='10806016',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
+        load('https://quge5.com/88/tag.min.js', {'data-zone': '224804'});
+        load('https://variationconfused.com/73/ac/40/73ac40214d10d6616671c7ad6c95f14f.js');
     })();
     </script>
     <meta name="clckd" content="7e627cc99fbdafc273ac51e09967c665" />
@@ -1032,13 +1027,6 @@
     </script>
 
     <div id="container-a0f8966beff4098b4229daf0d949f8d9"></div>
-    <script>
-    setTimeout(function() {
-        var s = document.createElement('script');
-        s.async = true; s.setAttribute('data-cfasync','false');
-        s.src = 'https://variationconfused.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js';
-        document.body.appendChild(s);
-    }, 5000);
-    </script>
+    <script async="async" data-cfasync="false" src="https://variationconfused.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js"></script>
 </body>
 </html>

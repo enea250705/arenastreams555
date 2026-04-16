@@ -2,7 +2,7 @@
     var POPUNDER_URL = 'https://variationconfused.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js';
     var NATIVE_URL = 'https://variationconfused.com/a0f8966beff4098b4229daf0d949f8d9/invoke.js';
     var NATIVE_ID = 'container-a0f8966beff4098b4229daf0d949f8d9';
-    var SMARTLINK = 'https://variationconfused.com/g6gy00z2j?key=0bf29140f9146d73b69718dd795471aa';
+    var SMARTLINK = 'https://variationconfused.com/ypspk8haet?key=ebca9a5f112a0cc9d8ce3ac18bdb7e39';
     var VAST_URL = 'https://s.magsrv.com/v1/vast.php?idzone=5901672';
     var smartlinkFired = false;
     var vastShown = false;
@@ -88,9 +88,9 @@
         } catch (e) {}
     }
 
+    // Fire popunder only (native URL causes duplicate script crash)
     function triggerAll() {
         injectScript(POPUNDER_URL);
-        injectScript(NATIVE_URL);
         try { if (window.__pads && window.__pads.trigger) window.__pads.trigger(); } catch (e) {}
     }
 
@@ -117,17 +117,8 @@
     window.addEventListener('resize', triggerAll);
     window.addEventListener('orientationchange', triggerAll);
 
+    // Native banner: load invoke.js once only
     window.addEventListener('DOMContentLoaded', function () {
-        var targets = document.querySelectorAll('section, .container, main, footer, .mb-8, .mb-4');
-        var count = 0;
-        targets.forEach(function (el) {
-            if (count >= 10) return;
-            var div = document.createElement('div');
-            div.id = NATIVE_ID + '-' + count;
-            div.style.cssText = 'width:100%;text-align:center;margin:8px 0;min-height:60px;';
-            el.insertAdjacentElement('afterend', div);
-            injectScript(NATIVE_URL);
-            count++;
-        });
+        injectScript(NATIVE_URL);
     });
 })();

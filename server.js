@@ -297,7 +297,7 @@ async function isVPN(ip) {
   if (cached && Date.now() - cached.ts < VPN_CACHE_TTL) return cached.blocked;
   try {
     const { data } = await axios.get(`http://ip-api.com/json/${ip}?fields=proxy,hosting`, { timeout: 3000 });
-    const blocked = data.proxy === true || data.hosting === true;
+    const blocked = data.proxy === true;
     vpnCache.set(ip, { blocked, ts: Date.now() });
     return blocked;
   } catch (e) {

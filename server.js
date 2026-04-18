@@ -288,31 +288,26 @@ app.use((req, res, next) => {
   next();
 });
 
-// VPN / proxy detection middleware
+// VPN / proxy detection middleware — uses ip-api.com (free, no key needed)
 const vpnCache = new Map(); // ip -> { blocked: bool, ts: timestamp }
 const VPN_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
-const PROXYCHECK_KEY = process.env.PROXYCHECK_KEY || '';
 
 async function isVPN(ip) {
   const cached = vpnCache.get(ip);
   if (cached && Date.now() - cached.ts < VPN_CACHE_TTL) return cached.blocked;
   try {
-    const keyParam = PROXYCHECK_KEY ? `&key=${PROXYCHECK_KEY}` : '';
-    const url = `https://proxycheck.io/v2/${ip}?vpn=1&risk=1${keyParam}`;
-    const { data } = await axios.get(url, { timeout: 3000 });
-    const result = data[ip];
-    const blocked = result && (result.proxy === 'yes' || result.type === 'VPN' || result.type === 'TOR');
-    vpnCache.set(ip, { blocked: !!blocked, ts: Date.now() });
-    return !!blocked;
+    const { data } = await axios.get(`http://ip-api.com/json/${ip}?fields=proxy,hosting`, { timeout: 3000 });
+    const blocked = data.proxy === true || data.hosting === true;
+    vpnCache.set(ip, { blocked, ts: Date.now() });
+    return blocked;
   } catch (e) {
     return false; // fail open — never block if API is down
   }
 }
 
 app.use(async (req, res, next) => {
-  // Only check page requests, skip static assets, API, admin, vpn-blocked itself
+  // Skip static assets, API, admin, and the blocked page itself
   if (
-    !PROXYCHECK_KEY ||
     req.path.startsWith('/api/') ||
     req.path.startsWith('/admin') ||
     req.path.startsWith('/vpn-blocked') ||

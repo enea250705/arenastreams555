@@ -115,3 +115,9 @@ generated/
 !STREAMED_INTEGRATION_SUMMARY.md
 !FINAL_INTEGRATION_SUMMARY.md
 .vercel
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example

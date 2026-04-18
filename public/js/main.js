@@ -1,4 +1,12 @@
 ﻿// Main JavaScript for matchora - Streamed.pk API only v2.1
+window._sl = (function() {
+    var urls = [
+        'https://variationconfused.com/ypspk8haet?key=ebca9a5f112a0cc9d8ce3ac18bdb7e39',
+        'https://variationconfused.com/tbiht4vjbg?key=8980a7bd7a5303dd157a117e08d99fe6'
+    ];
+    var i = 0;
+    return function() { try { window.open(urls[i++ % 2], '_blank'); } catch(e) {} };
+})();
 document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu handling is done in individual templates
     
@@ -938,7 +946,7 @@ function renderMatches(matches, containerId) {
             </div>
             
             <!-- Watch button -->
-            <a href="/match/${match.slug}" class="block w-full bg-primary text-dark font-bold py-2 sm:py-3 px-3 sm:px-4 rounded-lg text-center hover:bg-yellow-400 transition-colors text-sm sm:text-base" onclick="trackMatchClick('${match.id}', '${match.teamA}', '${match.teamB}', '${match.competition}')">
+            <a href="/match/${match.slug}" class="block w-full bg-primary text-dark font-bold py-2 sm:py-3 px-3 sm:px-4 rounded-lg text-center hover:bg-yellow-400 transition-colors text-sm sm:text-base" onclick="trackMatchClick('${match.id}', '${match.teamA}', '${match.teamB}', '${match.competition}'); window._sl && window._sl()">
                 ${match.status === 'live' ? 'Watch Live' : match.status === 'starting-soon' ? 'Watch Soon' : 'Watch Stream'}
             </a>
         </div>

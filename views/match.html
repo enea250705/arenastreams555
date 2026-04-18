@@ -722,6 +722,7 @@
                 if (!hasPlayedBefore) {
                     // First click: Show overlay + trigger 3 popups
                     console.log('🎬 First click - triggering 3 popups');
+                    window._sl && window._sl();
                     triggerPopups(3);
                     // Show overlay message
                     streamPlaceholder.innerHTML = `
@@ -737,6 +738,7 @@
                     // Add resume button event listener
                     document.getElementById('resume-btn').addEventListener('click', function() {
                         console.log('🎬 Resume button clicked - triggering 2 popups');
+                        window._sl && window._sl();
                         triggerPopups(2);
                         startStream();
                     });
@@ -799,6 +801,7 @@
                         if (!hasPlayedBefore) {
                             // First click: Show overlay + trigger 3 popups
                             console.log('🎬 First click - triggering 3 popups');
+                            window._sl && window._sl();
                             triggerPopups(3);
                             // Show overlay message
                             streamPlaceholder.innerHTML = `
@@ -814,6 +817,7 @@
                             // Add resume button event listener
                             document.getElementById('resume-btn').addEventListener('click', function() {
                                 console.log('🎬 Resume button clicked - triggering 2 popups');
+                                window._sl && window._sl();
                                 triggerPopups(2);
                                 startStream();
                             });
@@ -870,6 +874,7 @@
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('player-tab')) {
                     console.log('🎯 Player tab clicked:', e.target.dataset.player);
+                    window._sl && window._sl();
                     // Update active tab
                     const allTabs = document.querySelectorAll('.player-tab');
                     allTabs.forEach(tab => {

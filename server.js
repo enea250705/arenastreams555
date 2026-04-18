@@ -288,40 +288,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// VPN / proxy detection middleware — uses ip-api.com (free, no key needed)
-const vpnCache = new Map(); // ip -> { blocked: bool, ts: timestamp }
-const VPN_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
-
-async function isVPN(ip) {
-  const cached = vpnCache.get(ip);
-  if (cached && Date.now() - cached.ts < VPN_CACHE_TTL) return cached.blocked;
-  try {
-    const { data } = await axios.get(`http://ip-api.com/json/${ip}?fields=proxy,hosting`, { timeout: 3000 });
-    const blocked = data.proxy === true;
-    vpnCache.set(ip, { blocked, ts: Date.now() });
-    return blocked;
-  } catch (e) {
-    return false; // fail open — never block if API is down
-  }
-}
-
-app.use(async (req, res, next) => {
-  // Skip static assets, API, admin, and the blocked page itself
-  if (
-    req.path.startsWith('/api/') ||
-    req.path.startsWith('/admin') ||
-    req.path.startsWith('/vpn-blocked') ||
-    req.path.startsWith('/ads/') ||
-    req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|map|json)$/)
-  ) return next();
-
-  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
-  if (!ip || ip === '127.0.0.1' || ip === '::1') return next();
-
-  const blocked = await isVPN(ip);
-  if (blocked) return res.redirect(302, '/vpn-blocked');
-  next();
-});
 
 // Import routes
 const matchRoutes = require('./routes/matches');
@@ -2166,36 +2132,6 @@ Host: https://matchora.live`);
 });
 
 // Privacy Policy route
-// VPN blocked page
-app.get('/vpn-blocked', (req, res) => {
-  res.status(403).send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VPN Detected – matchora</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:#0f0f0f;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:20px}
-    .card{background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:48px 32px;max-width:480px}
-    h1{font-size:2rem;color:#f5c518;margin-bottom:12px}
-    p{color:#aaa;line-height:1.6;margin-bottom:24px}
-    a{display:inline-block;background:#f5c518;color:#000;font-weight:700;padding:12px 32px;border-radius:8px;text-decoration:none}
-    a:hover{background:#e0b015}
-    .icon{font-size:3rem;margin-bottom:16px}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="icon">🔒</div>
-    <h1>VPN Detected</h1>
-    <p>Our site doesn't support VPN or proxy connections. Please disable your VPN and try again to access free live sports streams.</p>
-    <a href="/">Try Again</a>
-  </div>
-</body>
-</html>`);
-});
-
 app.get('/privacy', async (req, res) => {
   try {
     const html = await renderTemplate('privacy', {});

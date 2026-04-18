@@ -16,21 +16,21 @@
         }
         function inline(fn) { fn(); }
 
-        if (Math.random() < 0.7) {
-            // variationconfused - 70% priority
-            window._vcAds = true;
-            load('https://variationconfused.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js');
-            load('https://variationconfused.com/ypspk8haet?key=ebca9a5f112a0cc9d8ce3ac18bdb7e39');
-            load('https://variationconfused.com/tbiht4vjbg?key=8980a7bd7a5303dd157a117e08d99fe6');
-            load('https://variationconfused.com/73/ac/40/73ac40214d10d6616671c7ad6c95f14f.js');
-        } else {
-            // Monetag - 30%
+        // variationconfused - priority (loads first)
+        window._vcAds = true;
+        load('https://variationconfused.com/ae/bb/dd/aebbddb2929e4e50670154540b33539e.js');
+        load('https://variationconfused.com/ypspk8haet?key=ebca9a5f112a0cc9d8ce3ac18bdb7e39');
+        load('https://variationconfused.com/tbiht4vjbg?key=8980a7bd7a5303dd157a117e08d99fe6');
+        load('https://variationconfused.com/73/ac/40/73ac40214d10d6616671c7ad6c95f14f.js');
+
+        // Monetag - loads after variationconfused
+        setTimeout(function() {
             inline(function(){ (function(s){s.dataset.zone='10806021',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
             inline(function(){ (function(s){s.dataset.zone='10806019',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
             load('https://5gvci.com/act/files/tag.min.js?z=10806018');
             inline(function(){ (function(s){s.dataset.zone='10806016',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script'))); });
             load('https://quge5.com/88/tag.min.js', {'data-zone': '224804'});
-        }
+        }, 1500);
     })();
     </script>
     <script type="text/javascript" data-cfasync="false">

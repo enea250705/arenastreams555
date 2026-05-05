@@ -115,3 +115,4 @@ generated/
 !STREAMED_INTEGRATION_SUMMARY.md
 !FINAL_INTEGRATION_SUMMARY.md
 .vercel
+.env*.local

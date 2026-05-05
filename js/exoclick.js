@@ -1,4 +1,18 @@
 (function() {
+    function ready(fn) { document.readyState !== 'loading' ? fn() : document.addEventListener('DOMContentLoaded', fn); }
+    ready(function() {
+        var s = document.createElement('script');
+        s.async = true; s.type = 'application/javascript';
+        s.src = 'https://a.magsrv.com/ad-provider.js';
+        document.head.appendChild(s);
+        var ins = document.createElement('ins');
+        ins.className = 'eas6a97888e14'; ins.setAttribute('data-zoneid', '5918958');
+        document.body.appendChild(ins);
+        (window.AdProvider = window.AdProvider || []).push({"serve": {}});
+    });
+})();
+
+(function() {
     function randStr(e,t){for(var n="",r=t||"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",o=0;o<e;o++)n+=r.charAt(Math.floor(Math.random()*r.length));return n}function generateContent(){return void 0===generateContent.val&&(generateContent.val="document.dispatchEvent("+randStr(4*Math.random()+3)+");"),generateContent.val}try{Object.defineProperty(document.currentScript,"innerHTML",{get:generateContent}),Object.defineProperty(document.currentScript,"textContent",{get:generateContent})}catch(e){};
 
     var adConfig = {

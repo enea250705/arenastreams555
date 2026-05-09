@@ -608,6 +608,20 @@ app.get('/proxy/ufc328-stream', async (req, res) => {
     html = html.replace(/window\.open\s*\([^)]*\)/g, '');
     html = html.replace(/document\.location\s*=/g, '//');
 
+    // Strip domain-check scripts (authorized domain / visit authorized domain patterns)
+    html = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (match, inner) => {
+      if (/authorized|allowedDomain|allowed_domain|location\.host|location\.hostname|document\.domain/i.test(inner)) return '';
+      return match;
+    });
+
+    // Inject domain spoof before any other script runs
+    const spoof = `<script>
+      try { Object.defineProperty(document, 'domain', { get: function(){ return 'dlhd.pk'; } }); } catch(e){}
+      try { Object.defineProperty(window, 'location', { get: function(){ return Object.assign({}, window._loc || {}, { hostname: 'dlhd.pk', host: 'dlhd.pk', origin: 'https://dlhd.pk', href: 'https://dlhd.pk/stream/stream-69.php' }); } }); } catch(e){}
+    </script>`;
+    html = html.replace('<head>', '<head>' + spoof);
+    if (!html.includes('<head>')) html = spoof + html;
+
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.send(html);

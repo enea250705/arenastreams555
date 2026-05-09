@@ -587,10 +587,11 @@ app.get('/match/:slug', async (req, res) => {
       // Fetch matches for all sports in parallel
       const sportPromises = sports.map(async (sport) => {
         try {
-          const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
+          const apiSport = sport === 'ufc' ? 'mma' : sport;
+          const response = await axios.get(`${STREAMED_API_BASE}/matches/${apiSport}`, {
             timeout: 10000
           });
-          
+
           let matches = [];
           if (Array.isArray(response.data)) {
             matches = response.data;
@@ -1321,10 +1322,11 @@ app.get('/matchadblock/:slug', async (req, res) => {
       // Fetch matches for all sports in parallel
       const sportPromises = sports.map(async (sport) => {
         try {
-          const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
+          const apiSport = sport === 'ufc' ? 'mma' : sport;
+          const response = await axios.get(`${STREAMED_API_BASE}/matches/${apiSport}`, {
             timeout: 10000
           });
-          
+
           let matches = [];
           if (Array.isArray(response.data)) {
             matches = response.data;
@@ -1555,7 +1557,8 @@ app.get('/api/streamed/matches/:sport', async (req, res) => {
     if (cached) {
       matches = cached;
     } else {
-      const response = await axios.get(`${STREAMED_API_BASE}/matches/${sport}`, {
+      const apiSport = sport === 'ufc' ? 'mma' : sport;
+      const response = await axios.get(`${STREAMED_API_BASE}/matches/${apiSport}`, {
         timeout: 15000
       });
       matches = response.data;

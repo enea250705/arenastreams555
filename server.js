@@ -567,7 +567,7 @@ Object.keys(seoConfig.sports).forEach(sport => {
   });
 });
 
-// Ad-stripped proxy for dlhd.pk UFC 328 stream
+// Extract HLS m3u8 from dlhd.pk and return it
 app.get('/proxy/ufc328-stream', async (req, res) => {
   try {
     const response = await axios.get('https://dlhd.pk/stream/stream-69.php', {
@@ -578,52 +578,46 @@ app.get('/proxy/ufc328-stream', async (req, res) => {
       }
     });
 
-    let html = response.data;
+    const html = response.data;
 
-    // Strip all known ad network scripts
-    const adPatterns = [
-      /popads/gi, /popcash/gi, /exoclick/gi, /adsterra/gi, /monetag/gi,
-      /trafficjunky/gi, /juicyads/gi, /adskeeper/gi, /hilltopads/gi,
-      /propellerads/gi, /adcash/gi, /plugrush/gi, /richpush/gi,
-      /pushcrew/gi, /onesignal/gi, /izooto/gi, /push\.house/gi,
-      /adspyglass/gi, /revcontent/gi, /taboola/gi, /outbrain/gi,
-      /mgid/gi, /valueimpression/gi, /bidvertiser/gi, /evadav/gi,
-      /clickadu/gi, /admaven/gi, /vidoomy/gi, /setupad/gi,
-      /smartadserver/gi, /rubiconproject/gi, /openx/gi,
-      /blockadsnot/gi, /variationconfused/gi, /5gvci/gi,
-      /nap5k/gi, /n6wxm/gi, /al5sm/gi, /quge5/gi,
-    ];
+    // Extract m3u8 URL from page source
+    const m3u8Match = html.match(/["'`](https?:\/\/[^"'`\s]+\.m3u8[^"'`\s]*)["'`]/i)
+      || html.match(/source\s*:\s*["'`](https?:\/\/[^"'`]+)["'`]/i)
+      || html.match(/file\s*:\s*["'`](https?:\/\/[^"'`]+)["'`]/i)
+      || html.match(/src\s*:\s*["'`](https?:\/\/[^"'`]+\.m3u8[^"'`]*)["'`]/i);
 
-    // Remove entire <script> tags containing ad domains
-    html = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (match) => {
-      if (adPatterns.some(p => p.test(match))) return '';
-      return match;
-    });
-    // Remove <script src="..."> where src matches ad domains
-    html = html.replace(/<script\b[^>]*src=["'][^"']*["'][^>]*>[\s\S]*?<\/script>/gi, (match) => {
-      if (adPatterns.some(p => p.test(match))) return '';
-      return match;
-    });
-    // Remove pop/redirect JS patterns
-    html = html.replace(/window\.open\s*\([^)]*\)/g, '');
-    html = html.replace(/document\.location\s*=/g, '//');
+    if (m3u8Match) {
+      const m3u8Url = m3u8Match[1];
+      console.log('✅ UFC 328 HLS URL found:', m3u8Url);
+      // Return a minimal video.js player page with the extracted HLS URL
+      const playerHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>*{margin:0;padding:0;background:#000} body,html{width:100%;height:100%;overflow:hidden} #player{width:100%;height:100vh}</style>
+  <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet">
+  <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-hls@5.15.0/dist/videojs-contrib-hls.min.js"></script>
+</head>
+<body>
+  <video id="player" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay playsinline>
+    <source src="${m3u8Url}" type="application/x-mpegURL">
+  </video>
+  <script>
+    var player = videojs('player', { fluid: true, liveui: true });
+    player.play();
+  </script>
+</body>
+</html>`;
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.send(playerHtml);
+    }
 
-    // Strip domain-check scripts (authorized domain / visit authorized domain patterns)
-    html = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (match, inner) => {
-      if (/authorized|allowedDomain|allowed_domain|location\.host|location\.hostname|document\.domain/i.test(inner)) return '';
-      return match;
-    });
-
-    // Inject domain spoof before any other script runs
-    const spoof = `<script>
-      try { Object.defineProperty(document, 'domain', { get: function(){ return 'dlhd.pk'; } }); } catch(e){}
-      try { Object.defineProperty(window, 'location', { get: function(){ return Object.assign({}, window._loc || {}, { hostname: 'dlhd.pk', host: 'dlhd.pk', origin: 'https://dlhd.pk', href: 'https://dlhd.pk/stream/stream-69.php' }); } }); } catch(e){}
-    </script>`;
-    html = html.replace('<head>', '<head>' + spoof);
-    if (!html.includes('<head>')) html = spoof + html;
-
+    // Fallback: return the raw page but log for debugging
+    console.log('⚠️ No m3u8 found in UFC 328 page, raw HTML length:', html.length);
+    console.log('⚠️ UFC 328 page snippet:', html.substring(0, 2000));
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.send(html);
   } catch (error) {
     console.error('UFC 328 proxy error:', error.message);

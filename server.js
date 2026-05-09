@@ -567,6 +567,23 @@ Object.keys(seoConfig.sports).forEach(sport => {
   });
 });
 
+// Debug: show raw dlhd.pk page source
+app.get('/proxy/ufc328-debug', async (req, res) => {
+  try {
+    const response = await axios.get('https://dlhd.pk/stream/stream-69.php', {
+      timeout: 15000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Referer': 'https://dlhd.pk/'
+      }
+    });
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.send(response.data);
+  } catch (error) {
+    res.status(502).send('Error: ' + error.message);
+  }
+});
+
 // Extract HLS m3u8 from dlhd.pk and return it
 app.get('/proxy/ufc328-stream', async (req, res) => {
   try {

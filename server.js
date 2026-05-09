@@ -567,6 +567,56 @@ Object.keys(seoConfig.sports).forEach(sport => {
   });
 });
 
+// Ad-stripped proxy for dlhd.pk UFC 328 stream
+app.get('/proxy/ufc328-stream', async (req, res) => {
+  try {
+    const response = await axios.get('https://dlhd.pk/stream/stream-69.php', {
+      timeout: 15000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Referer': 'https://dlhd.pk/'
+      }
+    });
+
+    let html = response.data;
+
+    // Strip all known ad network scripts
+    const adPatterns = [
+      /popads/gi, /popcash/gi, /exoclick/gi, /adsterra/gi, /monetag/gi,
+      /trafficjunky/gi, /juicyads/gi, /adskeeper/gi, /hilltopads/gi,
+      /propellerads/gi, /adcash/gi, /plugrush/gi, /richpush/gi,
+      /pushcrew/gi, /onesignal/gi, /izooto/gi, /push\.house/gi,
+      /adspyglass/gi, /revcontent/gi, /taboola/gi, /outbrain/gi,
+      /mgid/gi, /valueimpression/gi, /bidvertiser/gi, /evadav/gi,
+      /clickadu/gi, /admaven/gi, /vidoomy/gi, /setupad/gi,
+      /smartadserver/gi, /rubiconproject/gi, /openx/gi,
+      /blockadsnot/gi, /variationconfused/gi, /5gvci/gi,
+      /nap5k/gi, /n6wxm/gi, /al5sm/gi, /quge5/gi,
+    ];
+
+    // Remove entire <script> tags containing ad domains
+    html = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, (match) => {
+      if (adPatterns.some(p => p.test(match))) return '';
+      return match;
+    });
+    // Remove <script src="..."> where src matches ad domains
+    html = html.replace(/<script\b[^>]*src=["'][^"']*["'][^>]*>[\s\S]*?<\/script>/gi, (match) => {
+      if (adPatterns.some(p => p.test(match))) return '';
+      return match;
+    });
+    // Remove pop/redirect JS patterns
+    html = html.replace(/window\.open\s*\([^)]*\)/g, '');
+    html = html.replace(/document\.location\s*=/g, '//');
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.send(html);
+  } catch (error) {
+    console.error('UFC 328 proxy error:', error.message);
+    res.status(502).send('Stream temporarily unavailable');
+  }
+});
+
 // Hardcoded UFC 328 match page
 app.get('/match/ufc-328-chimaev-vs-strickland', async (req, res) => {
   try {
@@ -583,10 +633,10 @@ app.get('/match/ufc-328-chimaev-vs-strickland', async (req, res) => {
       status: 'live',
       poster: '',
       popular: true,
-      sources: [{ source: 'streamed', id: 'ufc-328' }],
+      sources: [],
       category: 'ufc',
       sport: 'ufc',
-      embedUrls: ['https://dlhd.pk/stream/stream-69.php']
+      embedUrls: ['/proxy/ufc328-stream']
     };
     const html = await renderTemplate('match', { match: matchData });
     res.send(html);

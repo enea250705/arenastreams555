@@ -584,7 +584,7 @@ app.get('/proxy/ufc328-debug', async (req, res) => {
   }
 });
 
-// Extract HLS m3u8 from dlhd.pk and return it
+// Ad/redirect-stripped proxy for dlhd.pk UFC 328 stream
 app.get('/proxy/ufc328-stream', async (req, res) => {
   try {
     const response = await axios.get('https://dlhd.pk/stream/stream-69.php', {
@@ -595,46 +595,60 @@ app.get('/proxy/ufc328-stream', async (req, res) => {
       }
     });
 
-    const html = response.data;
+    let html = response.data;
 
-    // Extract m3u8 URL from page source
-    const m3u8Match = html.match(/["'`](https?:\/\/[^"'`\s]+\.m3u8[^"'`\s]*)["'`]/i)
-      || html.match(/source\s*:\s*["'`](https?:\/\/[^"'`]+)["'`]/i)
-      || html.match(/file\s*:\s*["'`](https?:\/\/[^"'`]+)["'`]/i)
-      || html.match(/src\s*:\s*["'`](https?:\/\/[^"'`]+\.m3u8[^"'`]*)["'`]/i);
+    // Known ad network script domains to remove entirely
+    const adDomains = [
+      'popads', 'popcash', 'exoclick', 'adsterra', 'monetag', 'trafficjunky',
+      'juicyads', 'adskeeper', 'hilltopads', 'propellerads', 'adcash',
+      'plugrush', 'richpush', 'revcontent', 'taboola', 'outbrain', 'mgid',
+      'bidvertiser', 'evadav', 'clickadu', 'admaven', 'blockadsnot',
+      'variationconfused', '5gvci', 'nap5k', 'n6wxm', 'al5sm', 'quge5',
+      'pushcrew', 'onesignal', 'izooto', 'push.house', 'setupad',
+    ];
+    const adRe = new RegExp(adDomains.join('|'), 'i');
 
-    if (m3u8Match) {
-      const m3u8Url = m3u8Match[1];
-      console.log('✅ UFC 328 HLS URL found:', m3u8Url);
-      // Return a minimal video.js player page with the extracted HLS URL
-      const playerHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>*{margin:0;padding:0;background:#000} body,html{width:100%;height:100%;overflow:hidden} #player{width:100%;height:100vh}</style>
-  <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet">
-  <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-hls@5.15.0/dist/videojs-contrib-hls.min.js"></script>
-</head>
-<body>
-  <video id="player" class="video-js vjs-default-skin vjs-big-play-centered" controls autoplay playsinline>
-    <source src="${m3u8Url}" type="application/x-mpegURL">
-  </video>
-  <script>
-    var player = videojs('player', { fluid: true, liveui: true });
-    player.play();
-  </script>
-</body>
-</html>`;
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.send(playerHtml);
-    }
+    // Remove script tags belonging to ad networks
+    html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, m => adRe.test(m) ? '' : m);
 
-    // Fallback: return the raw page but log for debugging
-    console.log('⚠️ No m3u8 found in UFC 328 page, raw HTML length:', html.length);
-    console.log('⚠️ UFC 328 page snippet:', html.substring(0, 2000));
+    // Inject redirect/popup blocker as very first script — before anything else runs
+    const blocker = `<script>
+(function(){
+  // Kill all navigation attempts
+  var _noop = function(){};
+  window.open = _noop;
+  window.alert = _noop;
+  window.confirm = function(){ return false; };
+  // Block location redirects
+  var safeLoc = window.location.href;
+  try {
+    Object.defineProperty(window, 'location', {
+      get: function(){ return window._realLoc || window.location; },
+      set: function(v){ console.warn('Blocked redirect to', v); }
+    });
+  } catch(e){}
+  // Block all touchstart/click redirects outside the player container
+  document.addEventListener('click', function(e){
+    var t = e.target;
+    while(t){ if(t.id === 'player' || t.tagName === 'VIDEO') return; t = t.parentElement; }
+    e.preventDefault(); e.stopPropagation();
+  }, true);
+  document.addEventListener('touchstart', function(e){
+    var t = e.target;
+    while(t){ if(t.id === 'player' || t.tagName === 'VIDEO') return; t = t.parentElement; }
+    e.preventDefault(); e.stopPropagation();
+  }, true);
+})();
+</script>`;
+
+    html = html.replace(/(<head[^>]*>)/i, '$1' + blocker);
+    if (!/<head/i.test(html)) html = blocker + html;
+
+    // Remove meta refresh redirects
+    html = html.replace(/<meta[^>]+http-equiv=["']?refresh["']?[^>]*>/gi, '');
+
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.send(html);
   } catch (error) {
     console.error('UFC 328 proxy error:', error.message);
@@ -661,7 +675,7 @@ app.get('/match/ufc-328-chimaev-vs-strickland', async (req, res) => {
       sources: [],
       category: 'ufc',
       sport: 'ufc',
-      embedUrls: ['https://dlhd.pk/stream/stream-69.php']
+      embedUrls: ['/proxy/ufc328-stream']
     };
     const html = await renderTemplate('match', { match: matchData });
     res.send(html);

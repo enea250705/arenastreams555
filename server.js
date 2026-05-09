@@ -661,7 +661,7 @@ app.get('/match/ufc-328-chimaev-vs-strickland', async (req, res) => {
       sources: [],
       category: 'ufc',
       sport: 'ufc',
-      embedUrls: ['/proxy/ufc328-stream']
+      embedUrls: ['https://dlhd.pk/stream/stream-69.php']
     };
     const html = await renderTemplate('match', { match: matchData });
     res.send(html);

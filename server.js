@@ -567,6 +567,35 @@ Object.keys(seoConfig.sports).forEach(sport => {
   });
 });
 
+// Hardcoded UFC 328 match page
+app.get('/match/ufc-328-chimaev-vs-strickland', async (req, res) => {
+  try {
+    trackAdblockVisit(false);
+    const matchData = {
+      id: 'ufc-328-chimaev-vs-strickland',
+      teamA: 'Khamzat Chimaev',
+      teamB: 'Sean Strickland',
+      competition: 'UFC 328',
+      date: new Date().toISOString(),
+      slug: 'ufc-328-chimaev-vs-strickland',
+      teamABadge: '',
+      teamBBadge: '',
+      status: 'live',
+      poster: '',
+      popular: true,
+      sources: [],
+      category: 'ufc',
+      sport: 'ufc',
+      embedUrls: ['https://dlhd.pk/stream/stream-69.php']
+    };
+    const html = await renderTemplate('match', { match: matchData });
+    res.send(html);
+  } catch (error) {
+    console.error('Error rendering UFC 328 page:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // Match page route - fetch real data from Streamed.pk with caching
 app.get('/match/:slug', async (req, res) => {
   try {

@@ -1,43 +1,64 @@
 (function() {
   var PAGE = window.location.pathname || '/';
+  var ADSTERRA_HOST = 'variationconfused.com';
+  var _counted = false; // page-load banner impression: count once per load
 
-  function fireImpression() {
+  function fireImpression(type) {
     try {
-      navigator.sendBeacon('/api/ad-impression', JSON.stringify({ page: PAGE }));
-    } catch (e) {
-      fetch('/api/ad-impression', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: PAGE }), keepalive: true }).catch(function(){});
-    }
+      var payload = JSON.stringify({ page: PAGE, type: type || 'unknown' });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/ad-impression', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/api/ad-impression', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true }).catch(function(){});
+      }
+    } catch(e) {}
   }
 
-  // Hook ExoClick popMagic
-  var _hookInterval = setInterval(function() {
-    if (typeof popMagic !== 'undefined' && popMagic.setAsOpened) {
-      var orig = popMagic.setAsOpened.bind(popMagic);
-      popMagic.setAsOpened = function(e) {
-        fireImpression();
-        return orig(e);
-      };
-      clearInterval(_hookInterval);
-    }
-  }, 200);
+  // 1. Hook window.open — every popunder from ANY network (Adsterra, ExoClick, blockadsnot, etc.)
+  var _origOpen = window.open;
+  window.open = function(url, name, features) {
+    fireImpression('popunder');
+    return _origOpen.apply(window, arguments);
+  };
 
-  // Hook blockadsnot / generic popunder (fires on click when popunder opens)
-  document.addEventListener('click', function(e) {
-    if (e.isTrusted && typeof window._popunderFired !== 'undefined') {
-      fireImpression();
+  // 2. Hook document.createElement to detect variationconfused.com script injections (banner load = impression)
+  var _origCreateElement = document.createElement.bind(document);
+  document.createElement = function(tag) {
+    var el = _origCreateElement(tag);
+    if (tag && tag.toLowerCase() === 'script') {
+      var _origSetSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+      Object.defineProperty(el, 'src', {
+        get: function() { return _origSetSrc ? _origSetSrc.get.call(el) : ''; },
+        set: function(val) {
+          if (val && val.indexOf(ADSTERRA_HOST) !== -1) {
+            fireImpression('banner');
+          }
+          if (_origSetSrc) _origSetSrc.set.call(el, val);
+        },
+        configurable: true
+      });
     }
-  }, true);
+    return el;
+  };
 
-  // Listen for ExoClick creativeDisplayed events (fires on every popMagic open)
-  document.addEventListener('creativeDisplayed', fireImpression, true);
-  // Catch zone-specific event pattern creativeDisplayed-ZONEID
+  // 3. Hook ExoClick popMagic creativeDisplayed dispatch (backup)
   var _origDispatch = document.dispatchEvent.bind(document);
   document.dispatchEvent = function(ev) {
     if (ev && ev.type && ev.type.indexOf('creativeDisplayed') === 0) {
-      fireImpression();
+      // already counted by window.open hook, skip duplicate
     }
     return _origDispatch(ev);
   };
+
+  // 4. Count page load itself as ad impression if variationconfused scripts are on page
+  // (covers banner views — user saw the page = ad loaded)
+  window.addEventListener('load', function() {
+    var scripts = document.querySelectorAll('script[src*="' + ADSTERRA_HOST + '"]');
+    if (scripts.length > 0 && !_counted) {
+      _counted = true;
+      fireImpression('pageload');
+    }
+  });
 
   // Admin widget — visible only when cookie matchora_admin=1
   function getCookie(name) {
@@ -46,32 +67,82 @@
   }
 
   function formatNum(n) {
-    return n ? n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '0';
+    if (!n) return '0';
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
   function createWidget() {
     var w = document.createElement('div');
     w.id = 'ad-impression-widget';
-    w.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:99999;background:#0f172a;border:1px solid #1e40af;border-radius:10px;padding:12px 16px;font-family:system-ui,sans-serif;font-size:12px;color:#e2e8f0;min-width:180px;box-shadow:0 4px 20px rgba(0,0,0,.6);';
-    w.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-weight:700;font-size:11px;letter-spacing:.05em;color:#60a5fa;">📊 AD IMPRESSIONS</span><button onclick="this.parentNode.parentNode.remove()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:14px;line-height:1;">×</button></div><div style="display:flex;gap:16px"><div><div style="color:#94a3b8;font-size:10px;text-transform:uppercase;letter-spacing:.05em">Today</div><div id="adw-today" style="font-size:20px;font-weight:700;color:#34d399">0</div></div><div><div style="color:#94a3b8;font-size:10px;text-transform:uppercase;letter-spacing:.05em">Total</div><div id="adw-total" style="font-size:20px;font-weight:700;color:#a78bfa">0</div></div></div>';
+    w.style.cssText = [
+      'position:fixed', 'bottom:16px', 'right:16px', 'z-index:2147483647',
+      'background:#0f172a', 'border:1px solid #1e3a5f', 'border-radius:12px',
+      'padding:14px 18px', 'font-family:system-ui,-apple-system,sans-serif',
+      'font-size:12px', 'color:#e2e8f0', 'min-width:200px',
+      'box-shadow:0 8px 32px rgba(0,0,0,.7)', 'backdrop-filter:blur(4px)'
+    ].join(';');
+    w.innerHTML = [
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">',
+        '<span style="font-weight:700;font-size:11px;letter-spacing:.08em;color:#60a5fa;text-transform:uppercase">📊 Ad Impressions</span>',
+        '<button id="adw-close" style="background:none;border:none;color:#475569;cursor:pointer;font-size:16px;line-height:1;padding:0">×</button>',
+      '</div>',
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">',
+        '<div style="background:#1e293b;border-radius:8px;padding:8px 10px">',
+          '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Today</div>',
+          '<div id="adw-today" style="font-size:22px;font-weight:800;color:#34d399;letter-spacing:-.5px">0</div>',
+        '</div>',
+        '<div style="background:#1e293b;border-radius:8px;padding:8px 10px">',
+          '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Total</div>',
+          '<div id="adw-total" style="font-size:22px;font-weight:800;color:#a78bfa;letter-spacing:-.5px">0</div>',
+        '</div>',
+      '</div>',
+      '<div style="background:#1e293b;border-radius:8px;padding:8px 10px;margin-bottom:8px">',
+        '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">By Type</div>',
+        '<div id="adw-types" style="font-size:10px;color:#94a3b8;line-height:1.7"></div>',
+      '</div>',
+      '<div style="background:#1e293b;border-radius:8px;padding:8px 10px">',
+        '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">By Page (top 5)</div>',
+        '<div id="adw-pages" style="font-size:10px;color:#94a3b8;line-height:1.7"></div>',
+      '</div>',
+      '<div style="margin-top:8px;text-align:right;color:#334155;font-size:9px" id="adw-updated">–</div>'
+    ].join('');
     document.body.appendChild(w);
+    document.getElementById('adw-close').addEventListener('click', function() { w.remove(); });
     return w;
   }
 
   function updateWidget() {
-    fetch('/api/ad-impression/count').then(function(r){ return r.json(); }).then(function(d) {
+    fetch('/api/ad-impression/count').then(function(r) { return r.json(); }).then(function(d) {
       var t = document.getElementById('adw-today');
       var tot = document.getElementById('adw-total');
+      var pg = document.getElementById('adw-pages');
+      var ty = document.getElementById('adw-types');
+      var upd = document.getElementById('adw-updated');
       if (t) t.textContent = formatNum(d.today);
       if (tot) tot.textContent = formatNum(d.total);
+      if (ty && d.byType) {
+        var typeColors = { popunder: '#f59e0b', banner: '#60a5fa', pageload: '#34d399', unknown: '#64748b' };
+        var tEntries = Object.entries(d.byType).sort(function(a,b){ return b[1]-a[1]; });
+        ty.innerHTML = tEntries.map(function(e) {
+          var color = typeColors[e[0]] || '#94a3b8';
+          return '<div style="display:flex;justify-content:space-between"><span style="color:' + color + '">' + e[0] + '</span><span style="color:' + color + ';font-weight:700">' + formatNum(e[1]) + '</span></div>';
+        }).join('') || '<span style="color:#475569">No data yet</span>';
+      }
+      if (pg && d.byPage) {
+        var entries = Object.entries(d.byPage).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
+        pg.innerHTML = entries.map(function(e) {
+          return '<div style="display:flex;justify-content:space-between"><span>' + e[0] + '</span><span style="color:#60a5fa;font-weight:700">' + formatNum(e[1]) + '</span></div>';
+        }).join('') || '<span style="color:#475569">No data yet</span>';
+      }
+      if (upd) upd.textContent = 'Updated ' + new Date().toLocaleTimeString();
     }).catch(function(){});
   }
 
   if (getCookie('matchora_admin') === '1') {
-    document.addEventListener('DOMContentLoaded', function() {
-      createWidget();
-      updateWidget();
-      setInterval(updateWidget, 5000);
-    });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { createWidget(); updateWidget(); setInterval(updateWidget, 5000); });
+    } else {
+      createWidget(); updateWidget(); setInterval(updateWidget, 5000);
+    }
   }
 })();

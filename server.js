@@ -306,7 +306,7 @@ async function loadImpressions() {
     const raw = await fs.readFile(IMPRESSIONS_FILE, 'utf8');
     impressionCache = JSON.parse(raw);
   } catch {
-    impressionCache = { total: 0, today: 0, lastReset: new Date().toDateString(), byPage: {} };
+    impressionCache = { total: 0, today: 0, lastReset: new Date().toDateString(), byPage: {}, byType: {} };
   }
   return impressionCache;
 }
@@ -324,7 +324,10 @@ app.post('/api/ad-impression', async (req, res) => {
     data.total++;
     data.today++;
     const page = (req.body && req.body.page) || 'unknown';
+    const type = (req.body && req.body.type) || 'unknown';
     data.byPage[page] = (data.byPage[page] || 0) + 1;
+    if (!data.byType) data.byType = {};
+    data.byType[type] = (data.byType[type] || 0) + 1;
     await saveImpressions(data);
     res.json({ ok: true });
   } catch (e) {
@@ -337,9 +340,9 @@ app.get('/api/ad-impression/count', async (req, res) => {
     const data = await loadImpressions();
     const today = new Date().toDateString();
     if (data.lastReset !== today) { data.today = 0; data.lastReset = today; }
-    res.json({ total: data.total, today: data.today, byPage: data.byPage });
+    res.json({ total: data.total, today: data.today, byPage: data.byPage, byType: data.byType || {} });
   } catch (e) {
-    res.json({ total: 0, today: 0, byPage: {} });
+    res.json({ total: 0, today: 0, byPage: {}, byType: {} });
   }
 });
 

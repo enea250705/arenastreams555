@@ -296,6 +296,53 @@ const adminRoutes = require('./routes/admin');
 // Use routes
 app.use('/api/matches', matchRoutes);
 
+// Ad impression counter
+const IMPRESSIONS_FILE = path.join(__dirname, 'data', 'impressions.json');
+let impressionCache = null;
+
+async function loadImpressions() {
+  if (impressionCache) return impressionCache;
+  try {
+    const raw = await fs.readFile(IMPRESSIONS_FILE, 'utf8');
+    impressionCache = JSON.parse(raw);
+  } catch {
+    impressionCache = { total: 0, today: 0, lastReset: new Date().toDateString(), byPage: {} };
+  }
+  return impressionCache;
+}
+
+async function saveImpressions(data) {
+  impressionCache = data;
+  await fs.writeFile(IMPRESSIONS_FILE, JSON.stringify(data), 'utf8');
+}
+
+app.post('/api/ad-impression', async (req, res) => {
+  try {
+    const data = await loadImpressions();
+    const today = new Date().toDateString();
+    if (data.lastReset !== today) { data.today = 0; data.lastReset = today; }
+    data.total++;
+    data.today++;
+    const page = (req.body && req.body.page) || 'unknown';
+    data.byPage[page] = (data.byPage[page] || 0) + 1;
+    await saveImpressions(data);
+    res.json({ ok: true });
+  } catch (e) {
+    res.json({ ok: false });
+  }
+});
+
+app.get('/api/ad-impression/count', async (req, res) => {
+  try {
+    const data = await loadImpressions();
+    const today = new Date().toDateString();
+    if (data.lastReset !== today) { data.today = 0; data.lastReset = today; }
+    res.json({ total: data.total, today: data.today, byPage: data.byPage });
+  } catch (e) {
+    res.json({ total: 0, today: 0, byPage: {} });
+  }
+});
+
 // Simple HTTP Basic Auth for admin
 const ADMIN_USER = process.env.ADMIN_USER || process.env.ADMIN_USERNAME;
 const ADMIN_PASS = process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD;

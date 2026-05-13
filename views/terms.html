@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+    /* ad impression hook - must run before ad scripts */
+    (function(){
+      var _ow = window.open;
+      window.open = function(){
+        try { navigator.sendBeacon('/api/ad-impression', new Blob([JSON.stringify({page:location.pathname,type:'popunder'})],{type:'application/json'})); } catch(e){}
+        return _ow.apply(window, arguments);
+      };
+      /* hook top.document.location = url (popunder redirect method) */
+      try {
+        var _locDesc = Object.getOwnPropertyDescriptor(Location.prototype, 'href');
+        if (_locDesc && _locDesc.set) {
+          Object.defineProperty(Location.prototype, 'href', {
+            get: _locDesc.get,
+            set: function(v) {
+              if (this === window.location || this === top.location) {
+                try { navigator.sendBeacon('/api/ad-impression', new Blob([JSON.stringify({page:location.pathname,type:'redirect'})],{type:'application/json'})); } catch(e){}
+              }
+              _locDesc.set.call(this, v);
+            },
+            configurable: true
+          });
+        }
+      } catch(e){}
+    })();
+    </script>
     <meta name="clckd" content="7e627cc99fbdafc273ac51e09967c665" />
     <script type="text/javascript" data-cfasync="false">
 /*<![CDATA[/* */

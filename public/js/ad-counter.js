@@ -1,7 +1,7 @@
 (function() {
   var PAGE = window.location.pathname || '/';
   var ADSTERRA_HOST = 'variationconfused.com';
-  var _counted = false; // page-load banner impression: count once per load
+  var _counted = false;
 
   function fireImpression(type) {
     try {
@@ -14,44 +14,36 @@
     } catch(e) {}
   }
 
-  // 1. Hook window.open — every popunder from ANY network (Adsterra, ExoClick, blockadsnot, etc.)
+  // Re-apply window.open hook (in case ad scripts overrode it after head hook)
   var _origOpen = window.open;
   window.open = function(url, name, features) {
     fireImpression('popunder');
     return _origOpen.apply(window, arguments);
   };
 
-  // 2. Hook document.createElement to detect variationconfused.com script injections (banner load = impression)
+  // Hook document.createElement to detect variationconfused.com script injections
   var _origCreateElement = document.createElement.bind(document);
   document.createElement = function(tag) {
     var el = _origCreateElement(tag);
     if (tag && tag.toLowerCase() === 'script') {
-      var _origSetSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
-      Object.defineProperty(el, 'src', {
-        get: function() { return _origSetSrc ? _origSetSrc.get.call(el) : ''; },
-        set: function(val) {
-          if (val && val.indexOf(ADSTERRA_HOST) !== -1) {
-            fireImpression('banner');
-          }
-          if (_origSetSrc) _origSetSrc.set.call(el, val);
-        },
-        configurable: true
-      });
+      var _desc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+      if (_desc) {
+        Object.defineProperty(el, 'src', {
+          get: function() { return _desc.get.call(el); },
+          set: function(val) {
+            if (val && val.indexOf(ADSTERRA_HOST) !== -1) {
+              fireImpression('banner');
+            }
+            _desc.set.call(el, val);
+          },
+          configurable: true
+        });
+      }
     }
     return el;
   };
 
-  // 3. Hook ExoClick popMagic creativeDisplayed dispatch (backup)
-  var _origDispatch = document.dispatchEvent.bind(document);
-  document.dispatchEvent = function(ev) {
-    if (ev && ev.type && ev.type.indexOf('creativeDisplayed') === 0) {
-      // already counted by window.open hook, skip duplicate
-    }
-    return _origDispatch(ev);
-  };
-
-  // 4. Count page load itself as ad impression if variationconfused scripts are on page
-  // (covers banner views — user saw the page = ad loaded)
+  // Count page load as impression if Adsterra scripts present
   window.addEventListener('load', function() {
     var scripts = document.querySelectorAll('script[src*="' + ADSTERRA_HOST + '"]');
     if (scripts.length > 0 && !_counted) {
@@ -60,7 +52,7 @@
     }
   });
 
-  // Admin widget — visible only when cookie matchora_admin=1
+  // Admin widget
   function getCookie(name) {
     var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
     return m ? m.pop() : null;
@@ -79,36 +71,35 @@
       'background:#0f172a', 'border:1px solid #1e3a5f', 'border-radius:12px',
       'padding:14px 18px', 'font-family:system-ui,-apple-system,sans-serif',
       'font-size:12px', 'color:#e2e8f0', 'min-width:200px',
-      'box-shadow:0 8px 32px rgba(0,0,0,.7)', 'backdrop-filter:blur(4px)'
+      'box-shadow:0 8px 32px rgba(0,0,0,.7)'
     ].join(';');
     w.innerHTML = [
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">',
         '<span style="font-weight:700;font-size:11px;letter-spacing:.08em;color:#60a5fa;text-transform:uppercase">📊 Ad Impressions</span>',
         '<button id="adw-close" style="background:none;border:none;color:#475569;cursor:pointer;font-size:16px;line-height:1;padding:0">×</button>',
       '</div>',
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">',
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px">',
         '<div style="background:#1e293b;border-radius:8px;padding:8px 10px">',
           '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Today</div>',
-          '<div id="adw-today" style="font-size:22px;font-weight:800;color:#34d399;letter-spacing:-.5px">0</div>',
+          '<div id="adw-today" style="font-size:22px;font-weight:800;color:#34d399;letter-spacing:-.5px">–</div>',
         '</div>',
         '<div style="background:#1e293b;border-radius:8px;padding:8px 10px">',
           '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Total</div>',
-          '<div id="adw-total" style="font-size:22px;font-weight:800;color:#a78bfa;letter-spacing:-.5px">0</div>',
+          '<div id="adw-total" style="font-size:22px;font-weight:800;color:#a78bfa;letter-spacing:-.5px">–</div>',
         '</div>',
       '</div>',
       '<div style="background:#1e293b;border-radius:8px;padding:8px 10px;margin-bottom:8px">',
         '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">By Type</div>',
-        '<div id="adw-types" style="font-size:10px;color:#94a3b8;line-height:1.7"></div>',
+        '<div id="adw-types" style="font-size:10px;color:#94a3b8;line-height:1.8"></div>',
       '</div>',
       '<div style="background:#1e293b;border-radius:8px;padding:8px 10px">',
         '<div style="color:#64748b;font-size:9px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">By Page (top 5)</div>',
-        '<div id="adw-pages" style="font-size:10px;color:#94a3b8;line-height:1.7"></div>',
+        '<div id="adw-pages" style="font-size:10px;color:#94a3b8;line-height:1.8"></div>',
       '</div>',
       '<div style="margin-top:8px;text-align:right;color:#334155;font-size:9px" id="adw-updated">–</div>'
     ].join('');
     document.body.appendChild(w);
     document.getElementById('adw-close').addEventListener('click', function() { w.remove(); });
-    return w;
   }
 
   function updateWidget() {
@@ -124,8 +115,8 @@
         var typeColors = { popunder: '#f59e0b', banner: '#60a5fa', pageload: '#34d399', unknown: '#64748b' };
         var tEntries = Object.entries(d.byType).sort(function(a,b){ return b[1]-a[1]; });
         ty.innerHTML = tEntries.map(function(e) {
-          var color = typeColors[e[0]] || '#94a3b8';
-          return '<div style="display:flex;justify-content:space-between"><span style="color:' + color + '">' + e[0] + '</span><span style="color:' + color + ';font-weight:700">' + formatNum(e[1]) + '</span></div>';
+          var c = typeColors[e[0]] || '#94a3b8';
+          return '<div style="display:flex;justify-content:space-between"><span style="color:' + c + '">' + e[0] + '</span><span style="color:' + c + ';font-weight:700">' + formatNum(e[1]) + '</span></div>';
         }).join('') || '<span style="color:#475569">No data yet</span>';
       }
       if (pg && d.byPage) {
